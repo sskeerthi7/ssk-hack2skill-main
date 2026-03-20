@@ -38,7 +38,7 @@ const apiLimiter = rateLimit({
 
 // Middleware configuration
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: 0 }));
 
 /**
  * Modular AI Extraction Prompt.
