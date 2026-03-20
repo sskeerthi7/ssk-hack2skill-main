@@ -1,6 +1,6 @@
 /**
- * MediRepo Universal Platform 3.0
- * Targeting 98%+ Scoring through Deep Google Integration and Enterprise Code Quality.
+ * MediRepo Universal Platform 4.1 (Premium UX)
+ * Implementing human-centric design, data portability, and glassmorphism logic.
  */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -10,7 +10,7 @@ import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.8.
 import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 import { getRemoteConfig, fetchAndActivate, getNumber } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-remote-config.js";
 
-// -- PASTE THE REMAINDER OF YOUR FIREBASE KEYS BELOW BEFORE PROCEEDING --
+// Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBemfA6-DM0YyhIkW8NY411khM-qviuhbU",
   authDomain: "hack2skill-main.firebaseapp.com",
@@ -21,7 +21,7 @@ const firebaseConfig = {
   measurementId: "G-NKVLMCJ6H4"
 };
 
-// Initialize Google Cloud Services (Score: Google Services 100%)
+// Services Initialization
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -29,199 +29,190 @@ const analytics = getAnalytics(app);
 const storage = getStorage(app);
 const remoteConfig = getRemoteConfig(app);
 
-// Global State
+// Global Variables
 let currentUser = null;
 let currentImageFile = null;
-let expiryThreshold = 90; // Default days
+let expiryThreshold = 90;
+let inventorySnapshot = [];
 
 /**
- * Initializes Remote Config to fetch dynamic system thresholds.
+ * Friendly Error Mapping (UX Improvement)
+ * Converts technical Firebase codes into helpful human guidance.
+ */
+const getFriendlyError = (code) => {
+    switch (code) {
+        case 'auth/invalid-credential': return "Oops! Those credentials don't match our records.";
+        case 'auth/user-not-found': return "We couldn't find an account with that email.";
+        case 'auth/wrong-password': return "That's not the right password. Try again?";
+        case 'auth/email-already-in-use': return "This email is already registered. Want to sign in instead?";
+        case 'auth/weak-password': return "That password is a bit too easy to guess. Make it stronger!";
+        default: return "Something went wrong. Please check your connection and try again.";
+    }
+};
+
+/**
+ * Remote Config Hook
  */
 async function initRemoteConfig() {
     try {
         remoteConfig.settings.minimumFetchIntervalMillis = 3600000;
         await fetchAndActivate(remoteConfig);
         expiryThreshold = getNumber(remoteConfig, 'expiry_alert_threshold') || 90;
-        document.getElementById('config-threshold').innerText = `Config: ${expiryThreshold}d Alert`;
-        console.log(`Remote Config Activated: Threshold set to ${expiryThreshold} days.`);
+        document.getElementById('config-threshold').innerText = `Config: ${expiryThreshold}d Alert Active`;
+        document.getElementById('config-threshold').classList.add('badge-ready');
     } catch (err) {
-        document.getElementById('config-threshold').innerText = `Config: 90d (Local)`;
-        console.warn("Remote Config failed, using local defaults.", err);
+        document.getElementById('config-threshold').innerText = `Config: Standard (90d)`;
     }
 }
 initRemoteConfig();
 
 /**
- * Logic Module: Deep-links into Google Services Ecosystem.
+ * UX Feature: Password Visibility Toggle
  */
-function setupGoogleServices() {
-    // Find Nearest Pharmacy (Google Maps Integration)
-    document.getElementById('find-pharmacy-btn').addEventListener('click', () => {
-        if (!navigator.geolocation) {
-            window.open('https://www.google.com/maps/search/pharmacy+near+me');
-            return;
-        }
-        navigator.geolocation.getCurrentPosition((pos) => {
-            const { latitude, longitude } = pos.coords;
-            window.open(`https://www.google.com/maps/search/pharmacy/@${latitude},${longitude},15z`);
-        }, () => {
-            window.open('https://www.google.com/maps/search/pharmacy+near+me');
-        });
-    });
+const passInput = document.getElementById('pass-input');
+const toggleBtn = document.getElementById('toggle-password');
+const eyeIcon = document.getElementById('eye-icon');
 
-    // Schedule Reminders (Google Calendar Integration)
-    document.getElementById('calendar-reminder-btn').addEventListener('click', () => {
-        const text = "Medicine Dose Reminder";
-        const dates = new Date().toISOString().replace(/-|:|\.\d\d\d/g, "");
-        const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(text)}&details=Time+to+take+your+medicine+from+MediRepo+AI&dates=${dates}/${dates}`;
-        window.open(url);
-    });
-}
-setupGoogleServices();
+toggleBtn.addEventListener('click', () => {
+    const isPass = passInput.type === 'password';
+    passInput.type = isPass ? 'text' : 'password';
+    eyeIcon.className = isPass ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+});
 
 /**
- * DOM Elements Selection
+ * Data Feature: CSV Export Logic
  */
-const authSection = document.getElementById('auth-section');
-const dashboard = document.getElementById('dashboard-section');
-const emailIn = document.getElementById('email-input');
-const passIn = document.getElementById('pass-input');
+document.getElementById('download-csv-btn').addEventListener('click', () => {
+    if (inventorySnapshot.length === 0) return alert("Nothing to export yet!");
+    
+    let csv = "Medicine Name,Dosage,Quantity,Expiry Date,Added On\n";
+    inventorySnapshot.forEach(item => {
+        csv += `"${item.name}","${item.dosage}","${item.quantity}","${item.expiryDate}","${item.timestamp}"\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `medirepo_data_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    logEvent(analytics, 'data_export_csv');
+});
+
+/**
+ * Google Native Service Shortcuts
+ */
+document.getElementById('find-pharmacy-btn').addEventListener('click', () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(p => {
+            window.open(`https://www.google.com/maps/search/pharmacy/@${p.coords.latitude},${p.coords.longitude},15z`);
+        }, () => window.open('https://www.google.com/maps/search/pharmacy+near+me'));
+    } else {
+        window.open('https://www.google.com/maps/search/pharmacy+near+me');
+    }
+});
+
+document.getElementById('calendar-reminder-btn').addEventListener('click', () => {
+    const dates = new Date().toISOString().replace(/-|:|\.\d\d\d/g, "");
+    window.open(`https://www.google.com/calendar/render?action=TEMPLATE&text=Medication+Alert+from+MediRepo&dates=${dates}/${dates}`);
+});
+
+/**
+ * Authentication & State Management
+ */
+const authSect = document.getElementById('auth-section');
+const welcomeIntro = document.getElementById('welcome-intro');
+const dashSect = document.getElementById('dashboard-section');
 const errBox = document.getElementById('auth-error');
-const medGrid = document.getElementById('medicine-grid');
+const emailIn = document.getElementById('email-input');
+
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+        authSect.classList.add('hidden');
+        welcomeIntro.innerHTML = `<h1>Welcome back, <span class="gradient-text">${user.email.split('@')[0]}!</span></h1><p>Your verified medical bridge is active and synced across all devices.</p>`;
+        dashSect.classList.remove('hidden');
+        document.getElementById('logout-btn').classList.remove('hidden');
+        loadMedicines();
+    } else {
+        authSect.classList.remove('hidden');
+        welcomeIntro.innerHTML = `<h1>Turn Messy Data into <span class="gradient-text">Verified Actions</span></h1><p>The MediRepo 'Universal Bridge' uses Gemini AI to instantly convert unstructured medical voice, text, and images into a secure database.</p>`;
+        dashSect.classList.add('hidden');
+        document.getElementById('logout-btn').classList.add('hidden');
+    }
+});
+
+const handleAuth = async (promise) => {
+    try {
+        errBox.classList.add('hidden');
+        await promise;
+    } catch (err) {
+        errBox.innerText = getFriendlyError(err.code);
+        errBox.classList.remove('hidden');
+    }
+};
+
+document.getElementById('login-btn').addEventListener('click', () => handleAuth(signInWithEmailAndPassword(auth, emailIn.value, passInput.value)));
+document.getElementById('signup-btn').addEventListener('click', () => handleAuth(createUserWithEmailAndPassword(auth, emailIn.value, passInput.value)));
+document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+document.getElementById('google-login-btn').addEventListener('click', () => handleAuth(signInWithPopup(auth, new GoogleAuthProvider())));
+
+document.getElementById('forgot-pass-btn').addEventListener('click', async () => {
+    if (!emailIn.value) return alert("Please type your email address first!");
+    try { await sendPasswordResetEmail(auth, emailIn.value); alert("Success! Check your inbox for the reset link."); }
+    catch (e) { alert(getFriendlyError(e.code)); }
+});
+
+/**
+ * AI Processing Pipeline
+ */
 const smartInput = document.getElementById('smart-input');
 const processBtn = document.getElementById('process-btn');
 const aiStatus = document.getElementById('ai-processing-status');
 
-/**
- * Authentication Management (Boosts Code Quality Score)
- */
-onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-        authSection.classList.add('hidden');
-        dashboard.classList.remove('hidden');
-        document.getElementById('logout-btn').classList.remove('hidden');
-        loadMedicines();
-        logEvent(analytics, 'login_success', { method: 'automatic' });
-    } else {
-        authSection.classList.remove('hidden');
-        dashboard.classList.add('hidden');
-        document.getElementById('logout-btn').classList.add('hidden');
-        medGrid.innerHTML = '';
-    }
-});
-
-// Auth Click Handlers
-document.getElementById('login-btn').addEventListener('click', async () => {
-    try { errBox.classList.add('hidden'); await signInWithEmailAndPassword(auth, emailIn.value, passIn.value); }
-    catch (err) { errBox.innerText = err.message; errBox.classList.remove('hidden'); }
-});
-
-document.getElementById('signup-btn').addEventListener('click', async () => {
-    try { errBox.classList.add('hidden'); await createUserWithEmailAndPassword(auth, emailIn.value, passIn.value); }
-    catch (err) { errBox.innerText = err.message; errBox.classList.remove('hidden'); }
-});
-
-document.getElementById('logout-btn').addEventListener('click', () => {
-    logEvent(analytics, 'logout_triggered');
-    signOut(auth);
-});
-
-// Google Sign-In with OAuth
-const googleProvider = new GoogleAuthProvider();
-document.getElementById('google-login-btn').addEventListener('click', async () => {
-    try { errBox.classList.add('hidden'); await signInWithPopup(auth, googleProvider); }
-    catch (err) { errBox.innerText = err.message; errBox.classList.remove('hidden'); }
-});
-
-// Password Reset Flow
-document.getElementById('forgot-pass-btn').addEventListener('click', async () => {
-    if (!emailIn.value) { 
-        errBox.innerText = "Please type your email in the box first to reset your password."; 
-        errBox.classList.remove('hidden'); 
-        return; 
-    }
-    try { 
-        errBox.classList.add('hidden'); 
-        await sendPasswordResetEmail(auth, emailIn.value); 
-        alert("Password reset email successfully sent!"); 
-    } catch (err) { 
-        errBox.innerText = err.message; 
-        errBox.classList.remove('hidden'); 
-    }
-});
-
-/**
- * Image & Voice Processing
- */
 document.getElementById('image-upload').addEventListener('change', (e) => {
     currentImageFile = e.target.files[0];
-    if (currentImageFile) smartInput.placeholder = `Image Ready: ${currentImageFile.name}`;
+    if (currentImageFile) smartInput.placeholder = `Attachment Ready: ${currentImageFile.name}`;
 });
 
 document.getElementById('voice-btn').addEventListener('click', () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return alert("Browser does not support Speech Recognition.");
-    const recognition = new SpeechRecognition();
-    recognition.onstart = () => { smartInput.placeholder = "Listening..."; };
-    recognition.onresult = (e) => { smartInput.value = e.results[0][0].transcript; };
-    recognition.start();
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Recognition) return alert("Speech recognition not supported in this browser.");
+    const rec = new Recognition();
+    rec.onstart = () => smartInput.placeholder = "Listening to your intent...";
+    rec.onresult = (e) => smartInput.value = e.results[0][0].transcript;
+    rec.start();
 });
 
-/**
- * Core Intelligence Protocol: Processes unstructured data via Secure AI Proxy.
- */
 processBtn.addEventListener('click', async () => {
-    const text = smartInput.value;
-    if (!text && !currentImageFile) return;
-
+    if (!smartInput.value && !currentImageFile) return;
     aiStatus.classList.remove('hidden');
     processBtn.disabled = true;
 
     try {
-        logEvent(analytics, 'ai_extraction_started');
-        let base64 = currentImageFile ? await fileToBase64(currentImageFile) : null;
-        let cloudUrl = null;
-
-        // Optional Cloud Storage Upload (Attempted for Google Services score)
-        if (base64) {
-            try {
-                const storageRef = ref(storage, `uploads/${Date.now()}_img`);
-                await uploadString(storageRef, base64, 'base64');
-                cloudUrl = await getDownloadURL(storageRef);
-            } catch (se) { console.warn("Cloud Storage disabled/quota hit. Skipping image save.", se); }
-        }
-
+        const base64 = currentImageFile ? await fileToBase64(currentImageFile) : null;
         const res = await fetch('/api/gemini', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text, base64Image: base64 })
+            body: JSON.stringify({ text: smartInput.value, base64Image: base64 })
         });
-
-        const rawData = await res.json();
-        if (rawData.error) throw new Error(rawData.error);
-
-        const aiText = rawData.candidates[0].content.parts[0].text;
-        const match = aiText.match(/\{[\s\S]*\}/);
-        const parsed = JSON.parse(match ? match[0] : aiText);
+        
+        const data = await res.json();
+        const aiResponse = data.candidates[0].content.parts[0].text;
+        const parsed = JSON.parse(aiResponse.match(/\{[\s\S]*\}/)[0]);
 
         await addDoc(collection(db, "medicines"), {
             uid: currentUser.uid,
-            name: parsed.name || 'Unknown',
-            dosage: parsed.dosage || 'N/A',
+            ...parsed,
             quantity: parseFloat(parsed.quantity) || 0,
-            expiryDate: parsed.expiryDate,
-            cloudUrl: cloudUrl,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toLocaleDateString()
         });
 
         smartInput.value = '';
         currentImageFile = null;
-        logEvent(analytics, 'ai_extraction_success');
     } catch (e) {
-        document.getElementById('notification-banner').classList.remove('hidden');
-        document.getElementById('notification-text').innerText = "System Alert: " + e.message;
-        console.error("Extraction Failed:", e);
+        alert("AI Processing Error: Please try a clearer text/photo.");
     } finally {
         aiStatus.classList.add('hidden');
         processBtn.disabled = false;
@@ -229,54 +220,47 @@ processBtn.addEventListener('click', async () => {
 });
 
 /**
- * Data Visualization: Real-time Firestore sync and Expiry Alerting.
+ * Real-time Data Visualization
  */
 function loadMedicines() {
     const q = query(collection(db, "medicines"), where("uid", "==", currentUser.uid));
     onSnapshot(q, (snapshot) => {
-        medGrid.innerHTML = '';
-        let nearExpiry = false;
+        const grid = document.getElementById('medicine-grid');
+        grid.innerHTML = '';
+        inventorySnapshot = [];
+        let alerting = false;
 
-        snapshot.forEach((docSnap) => {
+        snapshot.forEach(docSnap => {
             const med = docSnap.data();
-            const id = docSnap.id;
-            
-            // Check expiry logic
+            inventorySnapshot.push(med);
             const dateObj = new Date(med.expiryDate);
-            const daysLeft = Math.ceil((dateObj - new Date()) / (1000 * 60 * 60 * 24));
+            const daysLeft = Math.ceil((dateObj - new Date()) / (86400000));
             
-            if (daysLeft < expiryThreshold) nearExpiry = true;
+            if (daysLeft < expiryThreshold) alerting = true;
 
             const card = document.createElement('div');
-            card.className = `card medicine-item ${daysLeft < 0 ? 'expired' : (daysLeft < expiryThreshold ? 'warning' : '')}`;
+            card.className = 'medicine-card fade-in';
             card.innerHTML = `
-                <h3>${med.name}</h3>
-                <p><strong>Dosage:</strong> ${med.dosage}</p>
-                <p><strong>Qty:</strong> ${med.quantity}</p>
-                <p><strong>Expiry:</strong> ${med.expiryDate} (${daysLeft < 0 ? 'EXPIRED' : daysLeft + ' days left'})</p>
-                <button class="icon-btn delete-btn" data-id="${id}"><i class="fa-solid fa-trash"></i> Delete</button>
+                <div class="med-info">
+                   <h4 style="font-weight:700;">${med.name}</h4>
+                   <p style="font-size:0.85rem; color:var(--text-muted);">${med.dosage} • Qty: ${med.quantity}</p>
+                   <p style="font-size:0.85rem; font-weight:600; color:${daysLeft < 0 ? 'var(--danger)' : (daysLeft < expiryThreshold ? 'var(--warning)' : 'var(--success)')}">
+                     ${daysLeft < 0 ? 'Expired' : 'Expires in ' + daysLeft + ' days'}
+                   </p>
+                </div>
+                <button class="icon-btn del-btn" data-id="${docSnap.id}" style="color:var(--danger); border:none; background:rgba(239, 68, 68, 0.05);"><i class="fa-solid fa-trash-can"></i></button>
             `;
-            medGrid.appendChild(card);
+            grid.appendChild(card);
         });
 
-        document.getElementById('notification-banner').classList.toggle('hidden', !nearExpiry);
-        if (nearExpiry) document.getElementById('notification-text').innerText = `Critical System Alert: Some medications are below the ${expiryThreshold}-day safety threshold!`;
+        document.getElementById('notification-banner').classList.toggle('hidden', !alerting);
+        document.getElementById('notification-text').innerText = alerting ? `Alert: Medications detected below the ${expiryThreshold}-day safety threshold.` : '';
         
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const docId = e.currentTarget.getAttribute('data-id');
-                await deleteDoc(doc(db, "medicines", docId));
-            });
-        });
+        document.querySelectorAll('.del-btn').forEach(b => b.addEventListener('click', (e) => deleteDoc(doc(db, "medicines", e.currentTarget.dataset.id))));
     });
 }
 
-/**
- * Utility Function: Converts files to base64 strings.
- */
-const fileToBase64 = (file) => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = (error) => reject(error);
+const fileToBase64 = (f) => new Promise((rs, rj) => {
+    const r = new FileReader(); r.readAsDataURL(f);
+    r.onload = () => rs(r.result.split(',')[1]);
 });
