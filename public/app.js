@@ -1,6 +1,6 @@
 // Import securely from Google CDN module layers
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
 import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
@@ -124,6 +124,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
+    // Google Auth & Password Reset System
+    const googleProvider = new GoogleAuthProvider();
+    document.getElementById('google-login-btn').addEventListener('click', async () => {
+        try { errBox.classList.add('hidden'); await signInWithPopup(auth, googleProvider); }
+        catch (err) { errBox.innerText = err.message; errBox.classList.remove('hidden'); }
+    });
+
+    document.getElementById('forgot-pass-btn').addEventListener('click', async () => {
+        if (!emailIn.value) { errBox.innerText = "Please type your email in the box first to reset your password."; errBox.classList.remove('hidden'); return; }
+        try { errBox.classList.add('hidden'); await sendPasswordResetEmail(auth, emailIn.value); alert("Password reset email successfully sent!"); }
+        catch (err) { errBox.innerText = err.message; errBox.classList.remove('hidden'); }
+    });
+
     // Internal File Parser
     const fileToBase64 = (file) => new Promise((resolve, reject) => {
         const reader = new FileReader(); reader.readAsDataURL(file);
@@ -206,7 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
             smartInput.value = '';
             currentImageFile = null;
         } catch (e) {
-            alert("Translation Protocol Exception: " + e.message);
+            // Replaced blocking browser alert popup with safe inline UI Banner so the spinner always correctly hides
+            document.getElementById('notification-banner').classList.remove('hidden');
+            document.getElementById('notification-text').innerText = "Translation Error: " + e.message;
         } finally {
             aiStatus.classList.add('hidden');
             processBtn.disabled = false;
