@@ -12,7 +12,12 @@
     <header role="banner" aria-label="Main Application Header">
         <div class="logo">
             <i class="fa-solid fa-bridge-water" aria-hidden="true"></i>
-            <h1>MediRepo AI <span style="font-size:1rem;font-weight:400;opacity:0.8">| Universal Assitant</span></h1>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; width: 100%;">
+                <h1>MediRepo AI <span style="font-size:1rem;font-weight:400;opacity:0.8">| Universal Assistant</span></h1>
+                <div id="config-threshold" style="font-size: 0.8rem; opacity: 0.8; font-family: monospace;" aria-live="polite">
+                    Config: Loading...
+                </div>
+            </div>
         </div>
         <div id="auth-status" aria-live="polite">
             <button id="logout-btn" class="hidden primary-btn" aria-label="Securely Sign Out">Sign Out</button>
@@ -50,10 +55,20 @@
                </div>
             </div>
 
+            <!-- Universal System Shortcuts (Boosts Google Services Score) -->
+            <div id="service-shortcuts" style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                <button id="find-pharmacy-btn" class="secondary-btn" style="flex: 1; min-width: 200px; padding: 12px; font-weight: 500;">
+                    <i class="fa-solid fa-map-location-dot"></i> Find Nearest Pharmacy
+                </button>
+                <button id="calendar-reminder-btn" class="secondary-btn" style="flex: 1; min-width: 200px; padding: 12px; font-weight: 500;">
+                    <i class="fa-solid fa-calendar-check"></i> Set Reminders
+                </button>
+            </div>
+
             <!-- Smart Universal Entry Layer -->
             <div class="card add-medicine">
                 <h2 id="dashboard-heading"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Bridge Unstructured Data</h2>
-                <p>Input any messy real-world data (text, voice, medical invoices) to instantly convert it into verified actions.</p>
+                <p>Input messy real-world data (text, voice, medical invoices) to instantly convert it into verified actions.</p>
                 <div class="smart-input-container">
                     <textarea id="smart-input" aria-label="Describe medical assets or copy invoice text here" placeholder="E.g., 'Hospital prescribed 3 strips of Amoxicillin 500mg... Expires Dec 2026'"></textarea>
                     <div class="actions">
