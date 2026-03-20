@@ -1,5 +1,4 @@
-const app = require('../server');
-const request = require('supertest'); // Though we aren't using supertest natively, we mock internal core logic below 
+const app = require('../server'); 
 
 describe('Universal Bridge Edge Case validations', () => {
 
