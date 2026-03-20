@@ -5,12 +5,13 @@ import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where
 
 // -- PASTE THE REMAINDER OF YOUR FIREBASE KEYS BELOW BEFORE PROCEEDING --
 const firebaseConfig = {
-  apiKey: "AIzaSyBemfA6-DM0YyhIkW8NY4l1khM-qviuhbU",
+  apiKey: "AIzaSyBemfA6-DM0YyhIkW8NY411khM-qviuhbU",
   authDomain: "hack2skill-main.firebaseapp.com",
   projectId: "hack2skill-main",
   storageBucket: "hack2skill-main.firebasestorage.app",
-  messagingSenderId: "374020966453", 
-  appId: "1:374020966453:web:9b9fbfaee" 
+  messagingSenderId: "1094623345192",
+  appId: "1:1094623345192:web:d3b5c91ffa77d2c91d131d",
+  measurementId: "G-NKVLMCJ6H4"
 };
 // ------------------------------------------------------------------------
 
