@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediRepo AI - Universal Real-World Bridge</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header role="banner" aria-label="Main Application Header">
+        <div class="logo">
+            <i class="fa-solid fa-bridge-water" aria-hidden="true"></i>
+            <h1>MediRepo AI <span style="font-size:1rem;font-weight:400;opacity:0.8">| Universal Assitant</span></h1>
+        </div>
+        <div id="auth-status" aria-live="polite">
+            <button id="logout-btn" class="hidden primary-btn" aria-label="Securely Sign Out">Sign Out</button>
+        </div>
+    </header>
+
+    <main role="main" class="container">
+        <!-- Secure Auth Module -->
+        <section id="auth-section" aria-labelledby="auth-heading" class="card fade-in">
+            <h2 id="auth-heading">Secure Authorized Access</h2>
+            <p>Please authenticate to access the universal bridge platform.</p>
+            <div class="auth-box">
+                <input type="email" id="email-input" placeholder="User Email" aria-label="Email address" aria-required="true" required>
+                <input type="password" id="pass-input" placeholder="Secure Password" aria-label="Password" aria-required="true" required>
+                <div class="auth-buttons">
+                    <button id="login-btn" class="primary-btn" aria-label="Log in to existing account">Log In</button>
+                    <button id="signup-btn" class="secondary-btn" aria-label="Create a new account profile">Create Account</button>
+                </div>
+            </div>
+            <div id="auth-error" aria-live="assertive" class="text-danger hidden" role="alert"></div>
+        </section>
+
+        <!-- Main Verified Action Dashboard -->
+        <section id="dashboard-section" class="hidden fade-in" aria-labelledby="dashboard-heading">
+            
+            <!-- Real World Expiry Analyzer Banner -->
+            <div id="notification-banner" class="hidden alert-danger" role="alert" aria-live="assertive">
+               <div style="display:flex; align-items:center; gap:10px;">
+                   <i class="fa-solid fa-triangle-exclamation"></i> 
+                   <strong id="notification-text"></strong>
+               </div>
+            </div>
+
+            <!-- Smart Universal Entry Layer -->
+            <div class="card add-medicine">
+                <h2 id="dashboard-heading"><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Bridge Unstructured Data</h2>
+                <p>Input any messy real-world data (text, voice, medical invoices) to instantly convert it into verified actions.</p>
+                <div class="smart-input-container">
+                    <textarea id="smart-input" aria-label="Describe medical assets or copy invoice text here" placeholder="E.g., 'Hospital prescribed 3 strips of Amoxicillin 500mg... Expires Dec 2026'"></textarea>
+                    <div class="actions">
+                        <button id="voice-btn" class="icon-btn" aria-label="Microphone Voice Dictation" title="Use Voice"><i class="fa-solid fa-microphone"></i></button>
+                        <label for="image-upload" class="icon-btn" aria-label="Upload Medical Photo or Invoice" title="Upload Image"><i class="fa-solid fa-camera"></i></label>
+                        <input type="file" id="image-upload" accept="image/*" hidden aria-hidden="true">
+                        <button id="process-btn" class="primary-btn" aria-label="Process with Gemini AI API">Process Intelligence <i class="fa-solid fa-wand-magic-sparkles"></i></button>
+                    </div>
+                </div>
+                <div id="ai-processing-status" class="hidden status-indicator" aria-live="polite">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Extracting structured JSON actions...
+                </div>
+            </div>
+
+            <!-- Visualized Verified Output Layer -->
+            <div class="inventory-section">
+                <h2><i class="fa-solid fa-database" aria-hidden="true"></i> Verified System Records</h2>
+                <div id="medicine-grid" role="list" aria-label="Database Records List"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Cloud Modules linked safely -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
