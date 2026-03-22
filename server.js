@@ -66,11 +66,11 @@ function buildGeminiRequest(text, base64Image) {
  */
 app.post('/api/gemini', apiLimiter, async (req, res) => {
     try {
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) return res.status(500).json({ error: "API Key Failure" });
-
         const { text, base64Image } = req.body;
         if (!text && !base64Image) return res.status(400).json({ error: "Empty request" });
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) return res.status(500).json({ error: "API Key Failure" });
         
         const geminiPayload = buildGeminiRequest(text, base64Image);
         
