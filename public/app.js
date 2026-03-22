@@ -170,10 +170,16 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
         
         loadMedicines();
+        
+        // Remove restricted visual state
+        document.querySelectorAll('#action-grid .glass-card').forEach(card => card.classList.remove('restricted'));
     } else {
         authSect.classList.remove('hidden');
         dashSect.classList.add('hidden');
         document.getElementById('logout-btn').classList.add('hidden');
+        
+        // Apply restricted visual state
+        document.querySelectorAll('#action-grid .glass-card').forEach(card => card.classList.add('restricted'));
     }
 });
 
@@ -231,7 +237,7 @@ authSubmitBtn.addEventListener('click', async () => {
         try {
             errBox.classList.add('hidden');
             await sendPasswordResetEmail(auth, email);
-            alert("Reset link sent! Please check your email.");
+            alert("Reset link sent! Please check your email inbox and spam folder.");
             authMode = 'login';
             updateAuthUI();
         } catch (err) {
@@ -243,19 +249,40 @@ authSubmitBtn.addEventListener('click', async () => {
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
 /**
- * Action Grid Interactions
+ * Action Grid Interactions: Restricted to Authenticated Users
  */
+const checkAuthForAction = (callback) => {
+    if (!currentUser) {
+        errBox.innerText = "Access Restricted: Please log in to your clinical repository first.";
+        errBox.classList.remove('hidden');
+        authSect.scrollIntoView({ behavior: 'smooth' });
+        // Highlight auth box
+        const authBox = document.querySelector('.auth-box');
+        authBox.style.boxShadow = '0 0 30px var(--accent-glow)';
+        setTimeout(() => authBox.style.boxShadow = '', 2000);
+        return;
+    }
+    callback();
+};
+
 document.getElementById('start-repo-card').addEventListener('click', () => {
-    window.scrollTo({ top: document.getElementById('dashboard-section').offsetTop - 20, behavior: 'smooth' });
+    checkAuthForAction(() => {
+        window.scrollTo({ top: document.getElementById('dashboard-section').offsetTop - 20, behavior: 'smooth' });
+        smartInput.focus();
+    });
 });
 
 document.getElementById('search-inventory-card').addEventListener('click', () => {
-    document.getElementById('search-box-container').classList.toggle('hidden');
-    document.getElementById('inventory-search').focus();
+    checkAuthForAction(() => {
+        document.getElementById('search-box-container').classList.remove('hidden');
+        document.getElementById('inventory-search').focus();
+    });
 });
 
 document.getElementById('export-data-card').addEventListener('click', () => {
-    exportToCSV();
+    checkAuthForAction(() => {
+        exportToCSV();
+    });
 });
 
 /**
@@ -293,8 +320,12 @@ const processBtn = document.getElementById('process-btn');
 const aiStatus = document.getElementById('ai-processing-status');
 const dropZone = document.getElementById('drop-zone');
 const imgUpload = document.getElementById('image-upload');
+const uploadIcons = dropZone.querySelector('.upload-icons');
+const uploadText = dropZone.querySelector('p');
 
-dropZone.addEventListener('click', () => imgUpload.click());
+// Only icons or text trigger file upload, not the whole zone/textarea
+uploadIcons.addEventListener('click', () => imgUpload.click());
+uploadText.addEventListener('click', () => imgUpload.click());
 
 imgUpload.addEventListener('change', (e) => {
     currentImageFile = e.target.files[0];
