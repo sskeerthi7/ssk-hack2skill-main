@@ -23,10 +23,10 @@
     </header>
 
     <main role="main" class="container">
-        <!-- New Intro Section (Seasoned UX) -->
+        <!-- New Intro Section (Seasoned UX) - Persistent -->
         <section id="welcome-intro" class="hero-section fade-in">
             <h1>Turn Messy Data into <span class="gradient-text">Verified Actions</span></h1>
-            <p>The MediRepo "Universal Bridge" uses Gemini AI to instantly convert unstructured medical voice, text, and images into a secure, real-time clinical database.</p>
+            <p id="welcome-message">The MediRepo "Universal Bridge" uses Gemini AI to instantly convert unstructured medical voice, text, and images into a secure, real-time clinical database.</p>
         </section>
 
         <!-- Secure Auth Module -->
@@ -92,14 +92,18 @@
                     </div>
                 </div>
                 <div id="ai-processing-status" class="hidden loading-indicator">
-                    <div class="spinner"></div> Gemini AI is extracting intent...
+                    <div class="spinner"></div> Extracting structured JSON actions...
                 </div>
             </div>
 
             <!-- Inventory -->
             <div class="inventory-grid">
-                <div class="section-header">
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h2>Verified System Records</h2>
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="inventory-search" placeholder="Search medicines..." aria-label="Search medical records">
+                    </div>
                 </div>
                 <div id="medicine-grid" class="record-grid" role="list"></div>
             </div>

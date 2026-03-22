@@ -1,6 +1,6 @@
 /**
- * MediRepo Universal Platform 4.1 (Premium UX)
- * Implementing human-centric design, data portability, and glassmorphism logic.
+ * MediRepo Universal Platform 4.2 (Bug Fixes & Search)
+ * Fixing Google Auth, History Sync, and adding real-time filtering.
  */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -33,11 +33,10 @@ const remoteConfig = getRemoteConfig(app);
 let currentUser = null;
 let currentImageFile = null;
 let expiryThreshold = 90;
-let inventorySnapshot = [];
+let fullInventory = []; // Cache for filtering
 
 /**
- * Friendly Error Mapping (UX Improvement)
- * Converts technical Firebase codes into helpful human guidance.
+ * Friendly Error Mapping
  */
 const getFriendlyError = (code) => {
     switch (code) {
@@ -46,50 +45,65 @@ const getFriendlyError = (code) => {
         case 'auth/wrong-password': return "That's not the right password. Try again?";
         case 'auth/email-already-in-use': return "This email is already registered. Want to sign in instead?";
         case 'auth/weak-password': return "That password is a bit too easy to guess. Make it stronger!";
+        case 'auth/popup-blocked': return "The sign-in popup was blocked. Please allow popups for this site.";
         default: return "Something went wrong. Please check your connection and try again.";
     }
 };
 
 /**
- * Remote Config Hook
+ * Remote Config
  */
 async function initRemoteConfig() {
     try {
         remoteConfig.settings.minimumFetchIntervalMillis = 3600000;
         await fetchAndActivate(remoteConfig);
         expiryThreshold = getNumber(remoteConfig, 'expiry_alert_threshold') || 90;
-        document.getElementById('config-threshold').innerText = `Config: ${expiryThreshold}d Alert Active`;
-        document.getElementById('config-threshold').classList.add('badge-ready');
+        const configBadge = document.getElementById('config-threshold');
+        if (configBadge) {
+            configBadge.innerText = `Config: ${expiryThreshold}d Alert Active`;
+            configBadge.classList.add('badge-ready');
+        }
     } catch (err) {
-        document.getElementById('config-threshold').innerText = `Config: Standard (90d)`;
+        console.warn("Remote Config failed:", err);
     }
 }
 initRemoteConfig();
 
 /**
- * UX Feature: Password Visibility Toggle
+ * UX Feature: Password Visibility
  */
 const passInput = document.getElementById('pass-input');
 const toggleBtn = document.getElementById('toggle-password');
 const eyeIcon = document.getElementById('eye-icon');
 
-toggleBtn.addEventListener('click', () => {
-    const isPass = passInput.type === 'password';
-    passInput.type = isPass ? 'text' : 'password';
-    eyeIcon.className = isPass ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
-});
+if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+        const isPass = passInput.type === 'password';
+        passInput.type = isPass ? 'text' : 'password';
+        eyeIcon.className = isPass ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+    });
+}
 
 /**
- * Data Feature: CSV Export Logic
+ * Search/Filter logic (New Feature)
+ */
+const searchInput = document.getElementById('inventory-search');
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        renderFilteredInventory(term);
+    });
+}
+
+/**
+ * Data Feature: CSV Export
  */
 document.getElementById('download-csv-btn').addEventListener('click', () => {
-    if (inventorySnapshot.length === 0) return alert("Nothing to export yet!");
-    
+    if (fullInventory.length === 0) return alert("Nothing to export yet!");
     let csv = "Medicine Name,Dosage,Quantity,Expiry Date,Added On\n";
-    inventorySnapshot.forEach(item => {
+    fullInventory.forEach(item => {
         csv += `"${item.name}","${item.dosage}","${item.quantity}","${item.expiryDate}","${item.timestamp}"\n`;
     });
-    
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -122,7 +136,7 @@ document.getElementById('calendar-reminder-btn').addEventListener('click', () =>
  * Authentication & State Management
  */
 const authSect = document.getElementById('auth-section');
-const welcomeIntro = document.getElementById('welcome-intro');
+const welcomeMessage = document.getElementById('welcome-message');
 const dashSect = document.getElementById('dashboard-section');
 const errBox = document.getElementById('auth-error');
 const emailIn = document.getElementById('email-input');
@@ -131,13 +145,13 @@ onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
         authSect.classList.add('hidden');
-        welcomeIntro.innerHTML = `<h1>Welcome back, <span class="gradient-text">${user.email.split('@')[0]}!</span></h1><p>Your verified medical bridge is active and synced across all devices.</p>`;
+        welcomeMessage.innerHTML = `<span class="badge-ready">Session Active</span><br>Welcome back, <strong>${user.email.split('@')[0]}</strong>! Your verified medical bridge is active.`;
         dashSect.classList.remove('hidden');
         document.getElementById('logout-btn').classList.remove('hidden');
         loadMedicines();
     } else {
         authSect.classList.remove('hidden');
-        welcomeIntro.innerHTML = `<h1>Turn Messy Data into <span class="gradient-text">Verified Actions</span></h1><p>The MediRepo 'Universal Bridge' uses Gemini AI to instantly convert unstructured medical voice, text, and images into a secure database.</p>`;
+        welcomeMessage.innerText = "The MediRepo 'Universal Bridge' uses Gemini AI to instantly convert unstructured medical voice, text, and images into a secure, real-time clinical database.";
         dashSect.classList.add('hidden');
         document.getElementById('logout-btn').classList.add('hidden');
     }
@@ -156,7 +170,12 @@ const handleAuth = async (promise) => {
 document.getElementById('login-btn').addEventListener('click', () => handleAuth(signInWithEmailAndPassword(auth, emailIn.value, passInput.value)));
 document.getElementById('signup-btn').addEventListener('click', () => handleAuth(createUserWithEmailAndPassword(auth, emailIn.value, passInput.value)));
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
-document.getElementById('google-login-btn').addEventListener('click', () => handleAuth(signInWithPopup(auth, new GoogleAuthProvider())));
+
+// Google Login
+const googleBtn = document.getElementById('google-login-btn');
+if (googleBtn) {
+    googleBtn.addEventListener('click', () => handleAuth(signInWithPopup(auth, new GoogleAuthProvider())));
+}
 
 document.getElementById('forgot-pass-btn').addEventListener('click', async () => {
     if (!emailIn.value) return alert("Please type your email address first!");
@@ -199,8 +218,19 @@ processBtn.addEventListener('click', async () => {
         });
         
         const data = await res.json();
+        if (!data.candidates) throw new Error("AI parsing error. Check API connection.");
+        
         const aiResponse = data.candidates[0].content.parts[0].text;
-        const parsed = JSON.parse(aiResponse.match(/\{[\s\S]*\}/)[0]);
+        const match = aiResponse.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error("AI returned unreadable format.");
+        
+        const parsed = JSON.parse(match[0]);
+
+        // Bug Fix: Scope Restriction
+        if (parsed.error === 'out_of_scope') {
+            alert("⚠️ Out of Scope: MediRepo AI only processes medical and medicine-related data. Please provide prescription/medication details.");
+            return;
+        }
 
         await addDoc(collection(db, "medicines"), {
             uid: currentUser.uid,
@@ -212,7 +242,8 @@ processBtn.addEventListener('click', async () => {
         smartInput.value = '';
         currentImageFile = null;
     } catch (e) {
-        alert("AI Processing Error: Please try a clearer text/photo.");
+        console.error(e);
+        alert("System Notice: " + e.message);
     } finally {
         aiStatus.classList.add('hidden');
         processBtn.disabled = false;
@@ -225,39 +256,57 @@ processBtn.addEventListener('click', async () => {
 function loadMedicines() {
     const q = query(collection(db, "medicines"), where("uid", "==", currentUser.uid));
     onSnapshot(q, (snapshot) => {
-        const grid = document.getElementById('medicine-grid');
-        grid.innerHTML = '';
-        inventorySnapshot = [];
-        let alerting = false;
-
+        fullInventory = [];
         snapshot.forEach(docSnap => {
             const med = docSnap.data();
-            inventorySnapshot.push(med);
-            const dateObj = new Date(med.expiryDate);
-            const daysLeft = Math.ceil((dateObj - new Date()) / (86400000));
-            
-            if (daysLeft < expiryThreshold) alerting = true;
-
-            const card = document.createElement('div');
-            card.className = 'medicine-card fade-in';
-            card.innerHTML = `
-                <div class="med-info">
-                   <h4 style="font-weight:700;">${med.name}</h4>
-                   <p style="font-size:0.85rem; color:var(--text-muted);">${med.dosage} • Qty: ${med.quantity}</p>
-                   <p style="font-size:0.85rem; font-weight:600; color:${daysLeft < 0 ? 'var(--danger)' : (daysLeft < expiryThreshold ? 'var(--warning)' : 'var(--success)')}">
-                     ${daysLeft < 0 ? 'Expired' : 'Expires in ' + daysLeft + ' days'}
-                   </p>
-                </div>
-                <button class="icon-btn del-btn" data-id="${docSnap.id}" style="color:var(--danger); border:none; background:rgba(239, 68, 68, 0.05);"><i class="fa-solid fa-trash-can"></i></button>
-            `;
-            grid.appendChild(card);
+            fullInventory.push({ id: docSnap.id, ...med });
         });
-
-        document.getElementById('notification-banner').classList.toggle('hidden', !alerting);
-        document.getElementById('notification-text').innerText = alerting ? `Alert: Medications detected below the ${expiryThreshold}-day safety threshold.` : '';
-        
-        document.querySelectorAll('.del-btn').forEach(b => b.addEventListener('click', (e) => deleteDoc(doc(db, "medicines", e.currentTarget.dataset.id))));
+        renderFilteredInventory('');
     });
+}
+
+function renderFilteredInventory(term) {
+    const grid = document.getElementById('medicine-grid');
+    grid.innerHTML = '';
+    let alerting = false;
+
+    const filtered = fullInventory.filter(item => 
+        item.name.toLowerCase().includes(term) || 
+        item.dosage.toLowerCase().includes(term)
+    );
+
+    filtered.forEach(med => {
+        const dateObj = new Date(med.expiryDate);
+        const daysLeft = Math.ceil((dateObj - new Date()) / (86400000));
+        
+        if (daysLeft < expiryThreshold) alerting = true;
+
+        const card = document.createElement('div');
+        card.className = 'medicine-card fade-in';
+        card.innerHTML = `
+            <div class="med-info">
+               <h4 style="font-weight:700;">${med.name}</h4>
+               <p style="font-size:0.85rem; color:var(--text-muted);">${med.dosage} • Qty: ${med.quantity}</p>
+               <p style="font-size:0.8rem; font-weight:600; color:${daysLeft < 0 ? 'var(--danger)' : (daysLeft < expiryThreshold ? 'var(--warning)' : 'var(--success)')}">
+                 ${daysLeft < 0 ? 'Expired' : 'Expires in ' + daysLeft + ' days'}
+               </p>
+            </div>
+            <button class="icon-btn del-btn" data-id="${med.id}" style="color:var(--danger); border:none; background:rgba(239, 68, 68, 0.05);"><i class="fa-solid fa-trash-can"></i></button>
+        `;
+        grid.appendChild(card);
+    });
+
+    const banner = document.getElementById('notification-banner');
+    if (banner) {
+        banner.classList.toggle('hidden', !alerting);
+        const bannerText = document.getElementById('notification-text');
+        if (bannerText) bannerText.innerText = alerting ? `Alert: Medications detected below the ${expiryThreshold}-day safety threshold.` : '';
+    }
+    
+    document.querySelectorAll('.del-btn').forEach(b => b.addEventListener('click', (e) => {
+        const id = e.currentTarget.dataset.id;
+        deleteDoc(doc(db, "medicines", id));
+    }));
 }
 
 const fileToBase64 = (f) => new Promise((rs, rj) => {
