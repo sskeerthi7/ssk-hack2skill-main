@@ -1,203 +1,265 @@
 /* 
-  MediRepo Visual Masterpiece v5.2 (Desktop Polish)
-  Theme: Professional Clinical Glass
+  MediRepo Visual Masterpiece v6.0 (Seasoned UX Edition)
+  Theme: Ultra-Premium Clinical Glass
 */
 
 :root {
     --primary: #ffffff;
     --accent: #22d3ee;
-    --bg-top: #0e7490;
-    --bg-bottom: #15803d;
-    --glass-bg: rgba(255, 255, 255, 0.15);
-    --glass-border: rgba(255, 255, 255, 0.3);
-    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    --accent-glow: rgba(34, 211, 238, 0.3);
+    --bg-top: #0a192f;
+    --bg-mid: #0d2a4a;
+    --bg-bottom: #052e16;
+    
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    
     --text-pure: #ffffff;
-    --text-faded: rgba(255, 255, 255, 0.85);
+    --text-faded: #94a3b8;
+    --text-dim: #64748b;
+    
+    --card-radius: 16px;
+    --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
 
 body {
     font-family: 'Outfit', sans-serif;
     color: var(--text-pure);
-    background: linear-gradient(180deg, var(--bg-top) 0%, #115e59 40%, var(--bg-bottom) 100%);
+    background: radial-gradient(circle at top left, var(--bg-mid) 0%, var(--bg-top) 40%, var(--bg-bottom) 100%);
     background-attachment: fixed;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     overflow-x: hidden;
+    line-height: 1.6;
 }
 
-/* Ambient Medical Decor (DNA / Plus icons) */
+/* Ambient Medical Background Decor */
 body::before {
-    content: '\2b'; 
-    position: fixed; top: 10%; right: 15%;
-    font-size: 15rem; color: rgba(255, 255, 255, 0.03);
-    font-weight: 700; z-index: -1;
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: -1;
 }
 
 .container {
     width: 100%;
-    max-width: 800px; /* Reduced for better desktop centering */
-    padding: 3.5rem 1.5rem;
+    max-width: 900px;
+    padding: 4rem 2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    gap: 3rem;
 }
 
-/* 1. Header & Shield Logo */
+/* 1. Enhanced Hero Header */
 .hero-header {
     text-align: center;
     width: 100%;
-    margin-bottom: 0.5rem;
 }
 
 .shield-logo {
-    width: 95px; height: 105px;
-    background: linear-gradient(135deg, #22d3ee, #0891b2);
-    margin: 0 auto 1.5rem;
+    width: 90px; height: 90px;
+    background: linear-gradient(135deg, var(--accent), #0891b2);
+    margin: 0 auto 2rem;
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 30px var(--accent-glow);
+    animation: pulseGlow 3s infinite alternate;
 }
 
-.shield-logo i { font-size: 2.5rem; color: white; }
+@keyframes pulseGlow {
+    from { transform: scale(1); box-shadow: 0 0 20px var(--accent-glow); }
+    to { transform: scale(1.05); box-shadow: 0 0 40px var(--accent-glow); }
+}
 
 .hero-header h1 {
-    font-size: 3.5rem;
+    font-size: 4rem;
     font-weight: 700;
+    letter-spacing: -1px;
+    background: linear-gradient(to bottom, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
     margin-bottom: 0.5rem;
 }
 
 .hero-header p {
-    font-size: 1.25rem;
-    color: var(--text-faded);
-    font-weight: 500;
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--accent);
+    letter-spacing: 4px;
+    text-transform: uppercase;
 }
 
 .mission-tagline {
     font-size: 1.1rem;
-    color: var(--text-faded);
+    color: var(--text-dim);
     margin-top: 1.5rem;
-    font-weight: 300;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-/* 2. Action Card Grid (Force 3 columns on Desktop) */
+/* 2. Action Card Grid */
 .action-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
+    gap: 1.5rem;
     width: 100%;
-    max-width: 700px; /* Clustered look */
-    margin: 0 auto;
 }
 
 .glass-card {
     background: var(--glass-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
-    border-radius: 12px;
-    padding: 1.25rem 0.75rem;
+    border-radius: var(--card-radius);
+    padding: 2rem 1.5rem;
     text-align: center;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    min-height: 110px;
+    transition: var(--transition-smooth);
+    cursor: pointer;
 }
 
-.glass-card i { font-size: 2.2rem; margin-bottom: 0.75rem; color: white; }
-.glass-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
-.glass-card p { font-size: 0.75rem; color: var(--text-faded); opacity: 0.8; }
+.glass-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
 
-/* Keep hover effect only for actual buttons (like the Auth pills or Process btn) */
-.pill-btn:hover { transform: scale(1.02); }
+.glass-card i { 
+    font-size: 2.5rem; 
+    margin-bottom: 1.5rem; 
+    color: var(--accent);
+    transition: var(--transition-smooth);
+}
 
-/* 3. Auth Pill Buttons (Fixed width on Desktop) */
+.glass-card:hover i { transform: scale(1.1); color: #fff; }
+
+.glass-card h3 { 
+    font-size: 1.1rem; 
+    font-weight: 600; 
+    margin-bottom: 0.5rem; 
+    color: #fff;
+}
+
+.glass-card p { 
+    font-size: 0.85rem; 
+    color: var(--text-faded); 
+}
+
+/* 3. Authentication Section */
 .auth-box {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 3rem;
+    border-radius: var(--card-radius);
+    border: 1px solid var(--glass-border);
     width: 100%;
-    max-width: 380px; /* Precise desktop alignment */
-    display: flex; flex-direction: column; gap: 0.75rem;
-    padding: 1rem 0;
 }
 
 .pill-btn {
-    width: 100%;
-    padding: 0.8rem 1.5rem;
-    border-radius: 12px;
-    border: 1px solid var(--glass-border);
-    font-weight: 600;
-    display: flex; align-items: center; justify-content: center; gap: 0.75rem;
-    cursor: pointer; transition: all 0.3s;
-    font-family: inherit; font-size: 1rem;
+    transition: var(--transition-smooth);
+    border: none;
+    cursor: pointer;
 }
 
-.google-pill { 
-    background: linear-gradient(180deg, #ffffff 0%, #d1d5db 100%); 
-    color: #374151; 
+.pill-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
-.google-pill:hover { transform: scale(1.02); }
 
-.email-pill { 
-    background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%); 
-    color: white; 
-}
-.email-pill:hover { background: rgba(255, 255, 255, 0.25); }
-
-/* 4. Quick Upload Box */
+/* 4. Dashboard & Quick Upload */
 .quick-upload {
-    width: 100%;
-    padding: 2rem;
-    margin-top: 1rem;
+    text-align: left;
+    padding: 2.5rem;
 }
 
 .upload-zone {
-    border: 1px dashed rgba(255, 255, 255, 0.4);
-    border-radius: 14px;
-    padding: 2.5rem 1rem;
-    display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
-    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed var(--glass-border);
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    background: rgba(255, 255, 255, 0.03);
+    transition: var(--transition-smooth);
 }
 
-.upload-icons {
-    display: flex; align-items: center; gap: 1rem;
-    font-size: 2.5rem; opacity: 0.8;
-}
-
-/* Footer & Caution (Final Polish) */
-footer {
-    width: 100%;
-    max-width: 600px;
-    padding: 3rem 1.5rem 1rem;
-    text-align: center;
-    font-size: 0.9rem;
-    color: var(--text-faded);
-}
-
-.caution-tag {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 1.5rem;
-    font-weight: 300;
-    opacity: 0.9;
+.upload-zone:hover {
+    border-color: var(--accent);
+    background: rgba(34, 211, 238, 0.05);
 }
 
 .input-field {
-    width: 100%; padding: 0.8rem 1rem; border-radius: 10px;
-    background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border);
-    color: white; margin-bottom: 0.5rem; font-family: inherit;
+    width: 100%;
+    padding: 1rem 1.2rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    font-family: inherit;
+    transition: var(--transition-smooth);
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+/* 5. Inventory Items */
+.record-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+.med-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 2rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    transition: var(--transition-smooth);
+}
+
+.med-card:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateX(10px);
+}
+
+/* Animations */
+.fade-in { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .hidden { display: none !important; }
 
-.fade-in { animation: fadeIn 0.5s ease-out; }
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-top); }
+::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .action-grid { grid-template-columns: 1fr; }
-    .hero-header h1 { font-size: 2.5rem; }
-    .container { padding: 2rem 1rem; }
+    .hero-header h1 { font-size: 3rem; }
+    .container { padding: 3rem 1.5rem; }
 }

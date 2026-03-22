@@ -4,7 +4,7 @@
  */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
 import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
@@ -39,22 +39,111 @@ let fullInventory = [];
  */
 const getFriendlyError = (code) => {
     switch (code) {
-        case 'auth/invalid-credential': return "Oops! Those credentials don't match our records.";
+        case 'auth/invalid-credential': return "Incorrect email or password. Please try again.";
         case 'auth/user-not-found': return "We couldn't find an account with that email.";
-        case 'auth/popup-blocked': return "The sign-in popup was blocked. Please allow popups.";
+        case 'auth/wrong-password': return "The password you entered is incorrect.";
+        case 'auth/email-already-in-use': return "An account with this email already exists.";
+        case 'auth/weak-password': return "Password should be at least 6 characters.";
+        case 'account-locked': return "Account locked due to 5 failed attempts. Please try again later.";
         default: return "System Error: Please check your connection.";
     }
 };
 
 /**
- * UI Mode: Email Toggle
+ * UI Mode: Auth Toggle (Login / Sign Up)
  */
-const emailModeBtn = document.getElementById('email-mode-btn');
-const emailForm = document.getElementById('email-form');
-if (emailModeBtn) {
-    emailModeBtn.addEventListener('click', () => {
-        emailForm.classList.toggle('hidden');
-        emailModeBtn.classList.toggle('hidden');
+let authMode = 'login';
+let loginAttempts = 0;
+const authHeader = document.getElementById('auth-header');
+const toggleAuthLink = document.getElementById('toggle-auth-link');
+const toggleAuthContainer = document.getElementById('toggle-auth-container');
+const authSubmitBtn = document.getElementById('auth-submit-btn');
+const signupFields = document.getElementById('signup-fields');
+const forgotFields = document.getElementById('forgot-pass-fields');
+const forgotLink = document.getElementById('forgot-pass-link');
+const passwordArea = document.getElementById('password-area');
+const emailLabel = document.getElementById('email-label');
+
+const updateAuthUI = () => {
+    signupFields.classList.toggle('hidden', authMode !== 'signup');
+    forgotFields.classList.toggle('hidden', authMode !== 'forgot');
+    passwordArea.classList.toggle('hidden', authMode === 'forgot');
+    forgotLink.classList.toggle('hidden', authMode !== 'login');
+    
+    if (authMode === 'login') {
+        authHeader.innerText = 'LOG IN';
+        authSubmitBtn.innerText = 'ACCESS REPOSITORY';
+        emailLabel.innerText = 'EMAIL ADDRESS *';
+        toggleAuthContainer.innerHTML = `Don't have an account? <a id="toggle-auth-link" style="color: var(--accent); cursor: pointer; text-decoration: underline;">Create an account.</a>`;
+    } else if (authMode === 'signup') {
+        authHeader.innerText = 'SIGN UP';
+        authSubmitBtn.innerText = 'INITIALIZE ACCOUNT';
+        emailLabel.innerText = 'EMAIL ADDRESS *';
+        toggleAuthContainer.innerHTML = `Already have an account? <a id="toggle-auth-link" style="color: var(--accent); cursor: pointer; text-decoration: underline;">Log in.</a>`;
+    } else if (authMode === 'forgot') {
+        authHeader.innerText = 'RESET';
+        authSubmitBtn.innerText = 'SEND RESET LINK';
+        emailLabel.innerText = 'REGISTERED EMAIL *';
+        toggleAuthContainer.innerHTML = `Remembered your password? <a id="toggle-auth-link" style="color: var(--accent); cursor: pointer; text-decoration: underline;">Log in.</a>`;
+    }
+    
+    document.getElementById('toggle-auth-link').addEventListener('click', (e) => {
+        if (authMode === 'login') authMode = 'signup';
+        else authMode = 'login';
+        updateAuthUI();
+    });
+};
+
+const toggleToSignup = (e) => {
+    authMode = 'signup';
+    updateAuthUI();
+};
+
+const toggleToLogin = (e) => {
+    authMode = 'login';
+    updateAuthUI();
+};
+
+const toggleToForgot = (e) => {
+    authMode = 'forgot';
+    updateAuthUI();
+};
+
+if (toggleAuthLink) {
+    toggleAuthLink.addEventListener('click', toggleToSignup);
+}
+
+if (forgotLink) {
+    forgotLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleToForgot();
+    });
+}
+
+// Re-usable toggle function
+const setupToggles = () => {
+    const link = document.getElementById('toggle-auth-link');
+    if (link) {
+        link.onclick = (e) => {
+            if (authMode === 'login') authMode = 'signup';
+            else authMode = 'login';
+            updateAuthUI();
+        };
+    }
+};
+setupToggles();
+
+/**
+ * Toggle Password Visibility
+ */
+const togglePassword = document.getElementById('toggle-password');
+const eyeIcon = document.getElementById('eye-icon');
+if (togglePassword) {
+    togglePassword.addEventListener('click', () => {
+        const type = passIn.getAttribute('type') === 'password' ? 'text' : 'password';
+        passIn.setAttribute('type', type);
+        eyeIcon.classList.toggle('fa-eye');
+        eyeIcon.classList.toggle('fa-eye-slash');
     });
 }
 
@@ -74,6 +163,12 @@ onAuthStateChanged(auth, (user) => {
         authSect.classList.add('hidden');
         dashSect.classList.remove('hidden');
         document.getElementById('logout-btn').classList.remove('hidden');
+        
+        // Personalized Greeting
+        const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Researcher';
+        document.getElementById('welcome-greeting').innerText = `Welcome, ${firstName}`;
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        
         loadMedicines();
     } else {
         authSect.classList.remove('hidden');
@@ -92,10 +187,60 @@ const handleAuth = async (promise) => {
     }
 };
 
-document.getElementById('login-btn').addEventListener('click', () => handleAuth(signInWithEmailAndPassword(auth, emailIn.value, passIn.value)));
-document.getElementById('signup-btn').addEventListener('click', () => handleAuth(createUserWithEmailAndPassword(auth, emailIn.value, passIn.value)));
+authSubmitBtn.addEventListener('click', async () => {
+    const email = emailIn.value;
+    const pass = passIn.value;
+    
+    if (authMode === 'login') {
+        if (localStorage.getItem('lockout_expiry') && new Date().getTime() < localStorage.getItem('lockout_expiry')) {
+            errBox.innerText = getFriendlyError('account-locked');
+            errBox.classList.remove('hidden');
+            return;
+        }
+        
+        try {
+            errBox.classList.add('hidden');
+            await signInWithEmailAndPassword(auth, email, pass);
+            loginAttempts = 0;
+            localStorage.removeItem('lockout_expiry');
+        } catch (err) {
+            loginAttempts++;
+            if (loginAttempts >= 5) {
+                const expiry = new Date().getTime() + 15 * 60 * 1000; // 15 mins
+                localStorage.setItem('lockout_expiry', expiry);
+                errBox.innerText = getFriendlyError('account-locked');
+            } else {
+                errBox.innerText = getFriendlyError(err.code);
+            }
+            errBox.classList.remove('hidden');
+        }
+    } else if (authMode === 'signup') {
+        const fname = document.getElementById('first-name-input').value;
+        const lname = document.getElementById('last-name-input').value;
+        
+        try {
+            errBox.classList.add('hidden');
+            const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+            await updateProfile(userCred.user, { displayName: `${fname} ${lname}` });
+            // Profile update triggers state change naturally
+        } catch (err) {
+            errBox.innerText = getFriendlyError(err.code);
+            errBox.classList.remove('hidden');
+        }
+    } else if (authMode === 'forgot') {
+        try {
+            errBox.classList.add('hidden');
+            await sendPasswordResetEmail(auth, email);
+            alert("Reset link sent! Please check your email.");
+            authMode = 'login';
+            updateAuthUI();
+        } catch (err) {
+            errBox.innerText = getFriendlyError(err.code);
+            errBox.classList.remove('hidden');
+        }
+    }
+});
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
-document.getElementById('google-login-btn').addEventListener('click', () => handleAuth(signInWithPopup(auth, new GoogleAuthProvider())));
 
 /**
  * Action Grid Interactions
@@ -219,30 +364,44 @@ function renderFilteredInventory(term) {
         const daysLeft = Math.ceil((new Date(med.expiryDate) - new Date()) / 86400000);
         if (daysLeft < expiryThreshold) alerting = true;
 
+        const isExpired = daysLeft < 0;
+        const isWarning = daysLeft < expiryThreshold && !isExpired;
+        const statusColor = isExpired ? '#ef4444' : (isWarning ? '#f59e0b' : 'var(--accent)');
+        const statusBg = isExpired ? 'rgba(239, 68, 68, 0.1)' : (isWarning ? 'rgba(245, 158, 11, 0.1)' : 'rgba(34, 211, 238, 0.1)');
+
         const card = document.createElement('div');
-        card.className = 'glass-card fade-in';
-        card.style.flexDirection = 'row';
-        card.style.justifyContent = 'space-between';
-        card.style.padding = '1rem 1.5rem';
+        card.className = 'med-card fade-in';
         card.innerHTML = `
-            <div style="text-align:left;">
-               <h4 style="font-weight:700;">${med.name}</h4>
-               <p style="opacity:0.7;">${med.dosage} • Qty: ${med.quantity}</p>
+            <div style="display: flex; align-items: center; gap: 1.5rem;">
+                <div style="width: 45px; height: 45px; background: ${statusBg}; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: ${statusColor}; border: 1px solid ${statusColor}44;">
+                    <i class="fa-solid ${isExpired ? 'fa-hourglass-end' : 'fa-pills'}"></i>
+                </div>
+                <div style="text-align:left;">
+                   <h4 style="font-weight:600; font-size: 1.1rem; color: #fff;">${med.name}</h4>
+                   <p style="font-size: 0.85rem; color: var(--text-faded);">${med.dosage} • Quantity: <span style="color: #fff; font-weight: 500;">${med.quantity}</span></p>
+                </div>
             </div>
-            <div style="text-align:right;">
-               <p style="font-weight:600; color:${daysLeft < 0 ? '#ef4444' : (daysLeft < expiryThreshold ? '#f59e0b' : '#22d3ee')}">
-                 ${daysLeft < 0 ? 'Expired' : daysLeft + ' days left'}
-               </p>
-               <button class="del-btn" data-id="${med.id}" style="background:none; border:none; color:#ef4444; margin-top:0.25rem; cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
+            <div style="text-align:right; display: flex; align-items: center; gap: 2rem;">
+               <div style="text-align: right;">
+                   <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 2px;">Status</p>
+                   <p style="font-weight:600; font-size: 0.9rem; color:${statusColor}">
+                     ${isExpired ? 'EXPIRED' : daysLeft + ' DAYS LEFT'}
+                   </p>
+               </div>
+               <button class="del-btn" data-id="${med.id}" style="background:rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color:#ef4444; width: 35px; height: 35px; border-radius: 8px; cursor:pointer; transition: var(--transition-smooth);"><i class="fa-solid fa-trash-can"></i></button>
             </div>
         `;
         grid.appendChild(card);
     });
 
     document.getElementById('notification-banner').classList.toggle('hidden', !alerting);
-    document.getElementById('notification-text').innerText = alerting ? `Alert: Safety threshold reached.` : '';
+    document.getElementById('notification-text').innerHTML = alerting ? `<strong>Safety Alert:</strong> Clinical safety threshold reached for certain repository items.` : '';
     
-    document.querySelectorAll('.del-btn').forEach(b => b.addEventListener('click', (e) => deleteDoc(doc(db, "medicines", e.currentTarget.dataset.id))));
+    document.querySelectorAll('.del-btn').forEach(b => {
+        b.addEventListener('mouseenter', (e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)');
+        b.addEventListener('mouseleave', (e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)');
+        b.addEventListener('click', (e) => deleteDoc(doc(db, "medicines", e.currentTarget.dataset.id)));
+    });
 }
 
 const fileToBase64 = (f) => new Promise((rs, rj) => {

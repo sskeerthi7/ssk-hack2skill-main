@@ -13,11 +13,11 @@
         <!-- Persistent Hero Section -->
         <header class="hero-header fade-in">
             <div class="shield-logo">
-                <i class="fa-solid fa-house-medical"></i>
+                <i class="fa-solid fa-hand-holding-medical"></i>
             </div>
             <h1>MediRepo AI</h1>
-            <p>The Universal Medical Bridge</p>
-            <div class="mission-tagline">Translating medical intent into structured care.</div>
+            <p>Clinical Intelligence Bridge</p>
+            <div class="mission-tagline">Securely translating medical intent into structured care through advanced Gemini AI extraction.</div>
         </header>
 
         <!-- Dynamic Content Area -->
@@ -26,90 +26,125 @@
             <!-- 1. The 3-Column Action Grid -->
             <section id="action-grid" class="action-grid fade-in">
                 <div class="glass-card" id="start-repo-card">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <h3>Start Repository</h3>
-                    <p>Upload Rx, Notes, or Voice</p>
+                    <i class="fa-solid fa-microscope"></i>
+                    <h3>Capture Intent</h3>
+                    <p>Scan Rx, Notes, or Audio</p>
                 </div>
                 <div class="glass-card" id="search-inventory-card">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <h3>Search Inventory</h3>
-                    <p>Find Medications Instantly</p>
+                    <i class="fa-solid fa-dna"></i>
+                    <h3>Repository</h3>
+                    <p>Instant Inventory Access</p>
                 </div>
                 <div class="glass-card" id="export-data-card">
-                    <i class="fa-solid fa-file-export"></i>
-                    <h3>Export Data.</h3>
-                    <p>Download CSV Report</p>
+                    <i class="fa-solid fa-file-shield"></i>
+                    <h3>Safe Export</h3>
+                    <p>Structured CSV Reports</p>
                 </div>
             </section>
 
             <!-- 2. Authentication Pillar -->
-            <section id="auth-section" class="fade-in" style="display:flex; flex-direction:column; align-items:center; width:100%;">
-                <div class="auth-box">
-                    <button id="google-login-btn" class="pill-btn google-pill">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="18">
-                        Sign in with Google
-                    </button>
-                    <button id="email-mode-btn" class="pill-btn email-pill">
-                        <i class="fa-solid fa-envelope"></i> Sign in with Email
-                    </button>
+            <section id="auth-section" class="fade-in" style="display:flex; flex-direction:column; align-items:center; width:100%; margin-top: 2rem;">
+                <div class="auth-box" style="text-align: left; max-width: 480px;">
+                    <h2 id="auth-header" style="font-size: 2.5rem; font-weight: 500; margin-bottom: 0.5rem; letter-spacing: 2px; color: #fff;">LOG IN</h2>
+                    <p id="toggle-auth-container" style="margin-bottom: 2.5rem; font-size: 1.1rem; font-weight: 300; color: var(--text-faded);">
+                        Don't have an account? <a id="toggle-auth-link" style="color: var(--accent); cursor: pointer; text-decoration: underline;">Create an account.</a>
+                    </p>
                     
-                    <!-- Hidden Email Form -->
-                    <div id="email-form" class="hidden" style="margin-top:1rem;">
-                        <input type="email" id="email-input" class="input-field" placeholder="Email Address">
-                        <div style="position:relative;">
-                            <input type="password" id="pass-input" class="input-field" placeholder="Password">
-                            <button id="toggle-password" style="position:absolute; right:1rem; top:0.75rem; background:none; border:none; color:white; cursor:pointer;"><i class="fa-solid fa-eye" id="eye-icon"></i></button>
+                    <div id="email-form">
+                        <!-- Sign Up Fields (Hidden by default) -->
+                        <div id="signup-fields" class="hidden">
+                            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                                <div style="flex: 1;">
+                                    <label style="display: block; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 0.75rem; color: var(--text-dim); font-weight: 600;">FIRST NAME *</label>
+                                    <input type="text" id="first-name-input" class="input-field" placeholder="John">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="display: block; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 0.75rem; color: var(--text-dim); font-weight: 600;">LAST NAME *</label>
+                                    <input type="text" id="last-name-input" class="input-field" placeholder="Doe">
+                                </div>
+                            </div>
                         </div>
-                        <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-                            <button id="login-btn" class="pill-btn email-pill" style="font-size:0.85rem;">Login</button>
-                            <button id="signup-btn" class="pill-btn email-pill" style="font-size:0.85rem; background:rgba(255,255,255,0.05);">Sign Up</button>
+
+                        <!-- Forgot Password Field (Hidden by default) -->
+                        <div id="forgot-pass-fields" class="hidden">
+                             <p style="margin-bottom: 2rem; font-size: 0.95rem; color: var(--text-faded);">Enter your registered email to receive a reset link.</p>
                         </div>
+
+                        <label id="email-label" style="display: block; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 0.75rem; color: var(--text-dim); font-weight: 600;">EMAIL ADDRESS *</label>
+                        <input type="email" id="email-input" class="input-field" placeholder="Enter your email" style="margin-bottom: 1.5rem;">
+                        
+                        <div id="password-area">
+                            <label style="display: block; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 0.75rem; color: var(--text-dim); font-weight: 600;">PASSWORD *</label>
+                            <div style="position:relative; margin-bottom: 1rem;">
+                                <input type="password" id="pass-input" class="input-field" placeholder="••••••••">
+                                <button id="toggle-password" style="position:absolute; right:1rem; top:0.85rem; background:none; border:none; color:var(--text-faded); cursor:pointer;">
+                                    <i class="fa-solid fa-eye-slash" id="eye-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <a href="#" id="forgot-pass-link" style="color: var(--text-faded); font-size: 0.95rem; text-decoration: underline; display: block; margin-bottom: 2.5rem;">Forgot password?</a>
+                        
+                        <button id="auth-submit-btn" class="pill-btn" style="background: var(--accent); color: #0a192f; font-weight: 700; padding: 1.25rem; border-radius: 8px; font-size: 1.1rem; width: 100%;">ACCESS REPOSITORY</button>
                     </div>
                 </div>
-                <div id="auth-error" class="hidden" style="color:#ef4444; margin-top:1rem; text-align:center; font-size:0.9rem;"></div>
+                <div id="auth-error" class="hidden" style="color:#ef4444; margin-top:1.5rem; text-align:center;"></div>
             </section>
 
             <!-- 3. Quick Upload Drop-zone (The AI Brain) -->
             <section id="dashboard-section" class="hidden fade-in">
+                <div style="width: 100%; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <h2 id="welcome-greeting" style="font-size: 2.2rem; font-weight: 600; color: #fff;">Welcome, Researcher</h2>
+                    <div style="font-size: 0.9rem; color: var(--text-faded);"><i class="fa-solid fa-calendar-day"></i> <span id="current-date"></span></div>
+                </div>
                 <div class="glass-card quick-upload">
-                    <h3 style="margin-bottom:1rem; opacity:0.8; text-align:left;">Quick Upload</h3>
-                    <p style="font-size:0.9rem; margin-bottom:1.5rem; opacity:0.7; text-align:left;">Drop your prescription or voice note here:</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <div>
+                            <h3 style="margin-bottom:0.25rem;">Diagnostic Upload</h3>
+                            <p style="font-size:0.9rem; opacity:0.6;">Input medical intent via file or text.</p>
+                        </div>
+                        <div style="background: var(--accent-glow); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.75rem; color: var(--accent); font-weight: 600; border: 1px solid var(--accent);">
+                            AI ACTIVE
+                        </div>
+                    </div>
+
                     <div class="upload-zone" id="drop-zone">
                         <div class="upload-icons">
-                            <i class="fa-solid fa-file-invoice"></i>
-                            <i class="fa-solid fa-microphone"></i>
-                            <i class="fa-solid fa-circle-arrow-down"></i>
+                            <i class="fa-solid fa-notes-medical"></i>
+                            <i class="fa-solid fa-wave-square"></i>
                         </div>
-                        <p>Drag & Drop Files</p>
+                        <p style="font-weight: 300; letter-spacing: 1px;">Drag medical records or drop audio here</p>
                         <input type="file" id="image-upload" hidden accept="image/*">
-                        <textarea id="smart-input" class="input-field" style="max-width:400px; height:80px; margin-top:1.5rem;" placeholder="Or type your medical intent here..."></textarea>
+                        <textarea id="smart-input" class="input-field" style="height:110px; margin-top:1.5rem;" placeholder="Or type your medical intent here (e.g. 'Add 20 tabs of Amoxicillin expiring next month')"></textarea>
                     </div>
-                    <div id="ai-processing-status" class="hidden" style="margin-top:1rem; font-size:0.9rem;">
-                        <i class="fa-solid fa-circle-notch fa-spin"></i> Gemini AI Extraction Active...
+
+                    <div id="ai-processing-status" class="hidden" style="margin-top:1.5rem; font-size:0.95rem; color: var(--accent);">
+                        <i class="fa-solid fa-atom fa-spin"></i> Initializing Gemini Neural Extraction...
                     </div>
-                    <button id="process-btn" class="pill-btn email-pill" style="margin-top:2rem; background:#22d3ee; color:#0e7490; max-width:250px; margin-left:auto; margin-right:auto;">Process Intent</button>
+                    
+                    <button id="process-btn" class="pill-btn" style="margin-top:2.5rem; background:#fff; color:#0a192f; width: 100%; border-radius: 8px; font-weight: 700; padding: 1.2rem;">PROCESS MEDICAL INTENT</button>
                 </div>
 
                 <!-- Notification Banner -->
-                <div id="notification-banner" class="hidden glass-card" style="margin-top:1.5rem; border-color:#f59e0b; padding:1rem; font-size:0.9rem; color:#fef3c7;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> <span id="notification-text"></span>
+                <div id="notification-banner" class="hidden glass-card" style="margin-top:1.5rem; border-color:#f59e0b; padding:1.2rem; font-size:0.95rem; flex-direction: row; gap: 1rem; text-align: left;">
+                    <i class="fa-solid fa-triangle-exclamation" style="margin-bottom:0; font-size: 1.5rem; color: #f59e0b;"></i> <span id="notification-text"></span>
                 </div>
 
                 <!-- Hidden Search Box -->
-                <div id="search-box-container" class="hidden glass-card" style="margin-top:1.5rem; padding:1.5rem;">
-                   <input type="text" id="inventory-search" class="input-field" placeholder="Search medications in the Bridge repository...">
+                <div id="search-box-container" class="hidden" style="margin-top:3rem;">
+                   <input type="text" id="inventory-search" class="input-field" placeholder="Search the universal medical bridge repository...">
                 </div>
 
                 <!-- Inventory Grid -->
-                <div id="inventory-view" class="record-grid" style="width:100%; margin-top:2.5rem;"></div>
+                <div id="inventory-view" class="record-grid" style="width:100%; margin-top:2rem;"></div>
             </section>
         </main>
 
         <footer>
             <div class="caution-tag">
-                MediRepo AI is a data structuring tool, not a substitute for medical advice.
+                <i class="fa-solid fa-circle-info"></i> MediRepo AI is a semantic data bridge. Clinical decisions must be verified by a licensed professional.
             </div>
-            <button id="logout-btn" class="hidden" style="background:none; border:none; color:white; text-decoration:underline; cursor:pointer; margin-top:2rem; opacity:0.5;">Sign Out</button>
+            <button id="logout-btn" class="hidden" style="background:none; border:none; color:var(--text-faded); text-decoration:underline; cursor:pointer; margin-top:3rem; opacity:0.6;">Securely Sign Out</button>
         </footer>
     </div>
 
