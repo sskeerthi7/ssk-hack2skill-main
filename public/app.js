@@ -73,13 +73,11 @@ onAuthStateChanged(auth, (user) => {
     if (user) {
         authSect.classList.add('hidden');
         dashSect.classList.remove('hidden');
-        actionGrid.classList.remove('hidden');
         document.getElementById('logout-btn').classList.remove('hidden');
         loadMedicines();
     } else {
         authSect.classList.remove('hidden');
         dashSect.classList.add('hidden');
-        actionGrid.classList.add('hidden');
         document.getElementById('logout-btn').classList.add('hidden');
     }
 });
