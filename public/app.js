@@ -334,8 +334,11 @@ imgUpload.addEventListener('change', (e) => {
 
 processBtn.addEventListener('click', async () => {
     if (!smartInput.value && !currentImageFile) return;
+    
+    // UI Feedback: Start
     aiStatus.classList.remove('hidden');
     processBtn.disabled = true;
+    errBox.classList.add('hidden'); // Use global errBox for visibility
 
     try {
         const base64 = currentImageFile ? await fileToBase64(currentImageFile) : null;
@@ -345,9 +348,20 @@ processBtn.addEventListener('click', async () => {
             body: JSON.stringify({ text: smartInput.value, base64Image: base64 })
         });
         
+        if (!res.ok) {
+            if (res.status === 404) throw new Error("Backend service not found. Please ensure the local server is running (npm start).");
+            throw new Error(`Extraction Service Error (HTTP ${res.status})`);
+        }
+
         const data = await res.json();
+        if (!data.candidates || !data.candidates[0].content.parts[0].text) {
+            throw new Error("Gemini AI failed to generate a valid clinical response. Please try again.");
+        }
+
         const aiResponse = data.candidates[0].content.parts[0].text;
         const match = aiResponse.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error("AI returned data in an invalid format. Refine your input.");
+        
         const parsed = JSON.parse(match[0]);
 
         if (parsed.error === 'out_of_scope') {
@@ -362,11 +376,17 @@ processBtn.addEventListener('click', async () => {
             timestamp: new Date().toLocaleDateString()
         });
 
+        // Cleanup
         smartInput.value = '';
         currentImageFile = null;
+        smartInput.placeholder = "Type clinical findings or scan patient records...";
     } catch (e) {
-        alert("Extraction Error: Please try again.");
+        console.error("MediRepo AI Error:", e);
+        errBox.innerText = `AI Extraction Error: ${e.message}`;
+        errBox.classList.remove('hidden');
+        errBox.scrollIntoView({ behavior: 'smooth' });
     } finally {
+        // UI Feedback: End (Crucial: Always hide status and re-enable button)
         aiStatus.classList.add('hidden');
         processBtn.disabled = false;
     }
@@ -383,6 +403,11 @@ function loadMedicines() {
             fullInventory.push({ id: docSnap.id, ...docSnap.data() });
         });
         renderFilteredInventory('');
+    }, (err) => {
+        console.error("Firestore Error:", err);
+        if (err.code === 'permission-denied') {
+            alert("Security Alert: Remote Clinical Repository access denied. Please re-login.");
+        }
     });
 }
 
