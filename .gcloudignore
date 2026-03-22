@@ -7,7 +7,6 @@
 .npm
 node_modules
 tests
-Dockerfile
 README.md
 task.md
 implementation_plan.md
