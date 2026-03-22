@@ -1,0 +1,15 @@
+.git
+.gitignore
+.gemini
+.vscode
+.cache
+.config
+.npm
+node_modules
+tests
+Dockerfile
+README.md
+task.md
+implementation_plan.md
+walkthrough.md
+deployment_guide.md
