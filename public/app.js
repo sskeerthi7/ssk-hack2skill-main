@@ -1,6 +1,6 @@
 /**
- * MediRepo Universal Platform 4.2 (Bug Fixes & Search)
- * Fixing Google Auth, History Sync, and adding real-time filtering.
+ * MediRepo Visual Masterpiece v5.0 (Logic Bridge)
+ * Mapping the High-End UI to the Gemini/Firebase Engine.
  */
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -26,14 +26,13 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const analytics = getAnalytics(app);
-const storage = getStorage(app);
 const remoteConfig = getRemoteConfig(app);
 
 // Global Variables
 let currentUser = null;
 let currentImageFile = null;
 let expiryThreshold = 90;
-let fullInventory = []; // Cache for filtering
+let fullInventory = [];
 
 /**
  * Friendly Error Mapping
@@ -42,117 +41,45 @@ const getFriendlyError = (code) => {
     switch (code) {
         case 'auth/invalid-credential': return "Oops! Those credentials don't match our records.";
         case 'auth/user-not-found': return "We couldn't find an account with that email.";
-        case 'auth/wrong-password': return "That's not the right password. Try again?";
-        case 'auth/email-already-in-use': return "This email is already registered. Want to sign in instead?";
-        case 'auth/weak-password': return "That password is a bit too easy to guess. Make it stronger!";
-        case 'auth/popup-blocked': return "The sign-in popup was blocked. Please allow popups for this site.";
-        default: return "Something went wrong. Please check your connection and try again.";
+        case 'auth/popup-blocked': return "The sign-in popup was blocked. Please allow popups.";
+        default: return "System Error: Please check your connection.";
     }
 };
 
 /**
- * Remote Config
+ * UI Mode: Email Toggle
  */
-async function initRemoteConfig() {
-    try {
-        remoteConfig.settings.minimumFetchIntervalMillis = 3600000;
-        await fetchAndActivate(remoteConfig);
-        expiryThreshold = getNumber(remoteConfig, 'expiry_alert_threshold') || 90;
-        const configBadge = document.getElementById('config-threshold');
-        if (configBadge) {
-            configBadge.innerText = `Config: ${expiryThreshold}d Alert Active`;
-            configBadge.classList.add('badge-ready');
-        }
-    } catch (err) {
-        console.warn("Remote Config failed:", err);
-    }
-}
-initRemoteConfig();
-
-/**
- * UX Feature: Password Visibility
- */
-const passInput = document.getElementById('pass-input');
-const toggleBtn = document.getElementById('toggle-password');
-const eyeIcon = document.getElementById('eye-icon');
-
-if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-        const isPass = passInput.type === 'password';
-        passInput.type = isPass ? 'text' : 'password';
-        eyeIcon.className = isPass ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+const emailModeBtn = document.getElementById('email-mode-btn');
+const emailForm = document.getElementById('email-form');
+if (emailModeBtn) {
+    emailModeBtn.addEventListener('click', () => {
+        emailForm.classList.toggle('hidden');
+        emailModeBtn.classList.toggle('hidden');
     });
 }
-
-/**
- * Search/Filter logic (New Feature)
- */
-const searchInput = document.getElementById('inventory-search');
-if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        renderFilteredInventory(term);
-    });
-}
-
-/**
- * Data Feature: CSV Export
- */
-document.getElementById('download-csv-btn').addEventListener('click', () => {
-    if (fullInventory.length === 0) return alert("Nothing to export yet!");
-    let csv = "Medicine Name,Dosage,Quantity,Expiry Date,Added On\n";
-    fullInventory.forEach(item => {
-        csv += `"${item.name}","${item.dosage}","${item.quantity}","${item.expiryDate}","${item.timestamp}"\n`;
-    });
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `medirepo_data_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    logEvent(analytics, 'data_export_csv');
-});
-
-/**
- * Google Native Service Shortcuts
- */
-document.getElementById('find-pharmacy-btn').addEventListener('click', () => {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(p => {
-            window.open(`https://www.google.com/maps/search/pharmacy/@${p.coords.latitude},${p.coords.longitude},15z`);
-        }, () => window.open('https://www.google.com/maps/search/pharmacy+near+me'));
-    } else {
-        window.open('https://www.google.com/maps/search/pharmacy+near+me');
-    }
-});
-
-document.getElementById('calendar-reminder-btn').addEventListener('click', () => {
-    const dates = new Date().toISOString().replace(/-|:|\.\d\d\d/g, "");
-    window.open(`https://www.google.com/calendar/render?action=TEMPLATE&text=Medication+Alert+from+MediRepo&dates=${dates}/${dates}`);
-});
 
 /**
  * Authentication & State Management
  */
 const authSect = document.getElementById('auth-section');
-const welcomeMessage = document.getElementById('welcome-message');
 const dashSect = document.getElementById('dashboard-section');
+const actionGrid = document.getElementById('action-grid');
 const errBox = document.getElementById('auth-error');
 const emailIn = document.getElementById('email-input');
+const passIn = document.getElementById('pass-input');
 
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
     if (user) {
         authSect.classList.add('hidden');
-        welcomeMessage.innerHTML = `<span class="badge-ready">Session Active</span><br>Welcome back, <strong>${user.email.split('@')[0]}</strong>! Your verified medical bridge is active.`;
         dashSect.classList.remove('hidden');
+        actionGrid.classList.remove('hidden');
         document.getElementById('logout-btn').classList.remove('hidden');
         loadMedicines();
     } else {
         authSect.classList.remove('hidden');
-        welcomeMessage.innerText = "The MediRepo 'Universal Bridge' uses Gemini AI to instantly convert unstructured medical voice, text, and images into a secure, real-time clinical database.";
         dashSect.classList.add('hidden');
+        actionGrid.classList.add('hidden');
         document.getElementById('logout-btn').classList.add('hidden');
     }
 });
@@ -167,41 +94,68 @@ const handleAuth = async (promise) => {
     }
 };
 
-document.getElementById('login-btn').addEventListener('click', () => handleAuth(signInWithEmailAndPassword(auth, emailIn.value, passInput.value)));
-document.getElementById('signup-btn').addEventListener('click', () => handleAuth(createUserWithEmailAndPassword(auth, emailIn.value, passInput.value)));
+document.getElementById('login-btn').addEventListener('click', () => handleAuth(signInWithEmailAndPassword(auth, emailIn.value, passIn.value)));
+document.getElementById('signup-btn').addEventListener('click', () => handleAuth(createUserWithEmailAndPassword(auth, emailIn.value, passIn.value)));
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+document.getElementById('google-login-btn').addEventListener('click', () => handleAuth(signInWithPopup(auth, new GoogleAuthProvider())));
 
-// Google Login
-const googleBtn = document.getElementById('google-login-btn');
-if (googleBtn) {
-    googleBtn.addEventListener('click', () => handleAuth(signInWithPopup(auth, new GoogleAuthProvider())));
-}
+/**
+ * Action Grid Interactions
+ */
+document.getElementById('start-repo-card').addEventListener('click', () => {
+    window.scrollTo({ top: document.getElementById('dashboard-section').offsetTop - 20, behavior: 'smooth' });
+});
 
-document.getElementById('forgot-pass-btn').addEventListener('click', async () => {
-    if (!emailIn.value) return alert("Please type your email address first!");
-    try { await sendPasswordResetEmail(auth, emailIn.value); alert("Success! Check your inbox for the reset link."); }
-    catch (e) { alert(getFriendlyError(e.code)); }
+document.getElementById('search-inventory-card').addEventListener('click', () => {
+    document.getElementById('search-box-container').classList.toggle('hidden');
+    document.getElementById('inventory-search').focus();
+});
+
+document.getElementById('export-data-card').addEventListener('click', () => {
+    exportToCSV();
 });
 
 /**
- * AI Processing Pipeline
+ * Data Feature: CSV Export
+ */
+function exportToCSV() {
+    if (fullInventory.length === 0) return alert("Nothing to export yet!");
+    let csv = "Medicine Name,Dosage,Quantity,Expiry Date\n";
+    fullInventory.forEach(item => {
+        csv += `"${item.name}","${item.dosage}","${item.quantity}","${item.expiryDate}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `medirepo_export.csv`;
+    a.click();
+}
+
+/**
+ * Search Logic
+ */
+const searchInput = document.getElementById('inventory-search');
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        renderFilteredInventory(e.target.value.toLowerCase());
+    });
+}
+
+/**
+ * AI Processing Pipeline (Quick Upload)
  */
 const smartInput = document.getElementById('smart-input');
 const processBtn = document.getElementById('process-btn');
 const aiStatus = document.getElementById('ai-processing-status');
+const dropZone = document.getElementById('drop-zone');
+const imgUpload = document.getElementById('image-upload');
 
-document.getElementById('image-upload').addEventListener('change', (e) => {
+dropZone.addEventListener('click', () => imgUpload.click());
+
+imgUpload.addEventListener('change', (e) => {
     currentImageFile = e.target.files[0];
-    if (currentImageFile) smartInput.placeholder = `Attachment Ready: ${currentImageFile.name}`;
-});
-
-document.getElementById('voice-btn').addEventListener('click', () => {
-    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Recognition) return alert("Speech recognition not supported in this browser.");
-    const rec = new Recognition();
-    rec.onstart = () => smartInput.placeholder = "Listening to your intent...";
-    rec.onresult = (e) => smartInput.value = e.results[0][0].transcript;
-    rec.start();
+    if (currentImageFile) smartInput.placeholder = `Ready: ${currentImageFile.name}`;
 });
 
 processBtn.addEventListener('click', async () => {
@@ -218,17 +172,12 @@ processBtn.addEventListener('click', async () => {
         });
         
         const data = await res.json();
-        if (!data.candidates) throw new Error("AI parsing error. Check API connection.");
-        
         const aiResponse = data.candidates[0].content.parts[0].text;
         const match = aiResponse.match(/\{[\s\S]*\}/);
-        if (!match) throw new Error("AI returned unreadable format.");
-        
         const parsed = JSON.parse(match[0]);
 
-        // Bug Fix: Scope Restriction
         if (parsed.error === 'out_of_scope') {
-            alert("⚠️ Out of Scope: MediRepo AI only processes medical and medicine-related data. Please provide prescription/medication details.");
+            alert("⚠️ Out of Scope: MediRepo AI only processes medical data.");
             return;
         }
 
@@ -242,8 +191,7 @@ processBtn.addEventListener('click', async () => {
         smartInput.value = '';
         currentImageFile = null;
     } catch (e) {
-        console.error(e);
-        alert("System Notice: " + e.message);
+        alert("Extraction Error: Please try again.");
     } finally {
         aiStatus.classList.add('hidden');
         processBtn.disabled = false;
@@ -258,55 +206,45 @@ function loadMedicines() {
     onSnapshot(q, (snapshot) => {
         fullInventory = [];
         snapshot.forEach(docSnap => {
-            const med = docSnap.data();
-            fullInventory.push({ id: docSnap.id, ...med });
+            fullInventory.push({ id: docSnap.id, ...docSnap.data() });
         });
         renderFilteredInventory('');
     });
 }
 
 function renderFilteredInventory(term) {
-    const grid = document.getElementById('medicine-grid');
+    const grid = document.getElementById('inventory-view');
     grid.innerHTML = '';
     let alerting = false;
 
-    const filtered = fullInventory.filter(item => 
-        item.name.toLowerCase().includes(term) || 
-        item.dosage.toLowerCase().includes(term)
-    );
-
-    filtered.forEach(med => {
-        const dateObj = new Date(med.expiryDate);
-        const daysLeft = Math.ceil((dateObj - new Date()) / (86400000));
-        
+    fullInventory.filter(i => i.name.toLowerCase().includes(term)).forEach(med => {
+        const daysLeft = Math.ceil((new Date(med.expiryDate) - new Date()) / 86400000);
         if (daysLeft < expiryThreshold) alerting = true;
 
         const card = document.createElement('div');
-        card.className = 'medicine-card fade-in';
+        card.className = 'glass-card fade-in';
+        card.style.flexDirection = 'row';
+        card.style.justifyContent = 'space-between';
+        card.style.padding = '1rem 1.5rem';
         card.innerHTML = `
-            <div class="med-info">
+            <div style="text-align:left;">
                <h4 style="font-weight:700;">${med.name}</h4>
-               <p style="font-size:0.85rem; color:var(--text-muted);">${med.dosage} • Qty: ${med.quantity}</p>
-               <p style="font-size:0.8rem; font-weight:600; color:${daysLeft < 0 ? 'var(--danger)' : (daysLeft < expiryThreshold ? 'var(--warning)' : 'var(--success)')}">
-                 ${daysLeft < 0 ? 'Expired' : 'Expires in ' + daysLeft + ' days'}
-               </p>
+               <p style="opacity:0.7;">${med.dosage} • Qty: ${med.quantity}</p>
             </div>
-            <button class="icon-btn del-btn" data-id="${med.id}" style="color:var(--danger); border:none; background:rgba(239, 68, 68, 0.05);"><i class="fa-solid fa-trash-can"></i></button>
+            <div style="text-align:right;">
+               <p style="font-weight:600; color:${daysLeft < 0 ? '#ef4444' : (daysLeft < expiryThreshold ? '#f59e0b' : '#22d3ee')}">
+                 ${daysLeft < 0 ? 'Expired' : daysLeft + ' days left'}
+               </p>
+               <button class="del-btn" data-id="${med.id}" style="background:none; border:none; color:#ef4444; margin-top:0.25rem; cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
         `;
         grid.appendChild(card);
     });
 
-    const banner = document.getElementById('notification-banner');
-    if (banner) {
-        banner.classList.toggle('hidden', !alerting);
-        const bannerText = document.getElementById('notification-text');
-        if (bannerText) bannerText.innerText = alerting ? `Alert: Medications detected below the ${expiryThreshold}-day safety threshold.` : '';
-    }
+    document.getElementById('notification-banner').classList.toggle('hidden', !alerting);
+    document.getElementById('notification-text').innerText = alerting ? `Alert: Safety threshold reached.` : '';
     
-    document.querySelectorAll('.del-btn').forEach(b => b.addEventListener('click', (e) => {
-        const id = e.currentTarget.dataset.id;
-        deleteDoc(doc(db, "medicines", id));
-    }));
+    document.querySelectorAll('.del-btn').forEach(b => b.addEventListener('click', (e) => deleteDoc(doc(db, "medicines", e.currentTarget.dataset.id))));
 }
 
 const fileToBase64 = (f) => new Promise((rs, rj) => {

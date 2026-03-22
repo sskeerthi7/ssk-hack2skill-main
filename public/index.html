@@ -8,107 +8,115 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="glass-theme">
-    <header role="banner" aria-label="Main Application Header">
-        <div class="logo">
-            <i class="fa-solid fa-bridge-water" aria-hidden="true"></i>
-            <div style="display: flex; justify-content: space-between; align-items: baseline; width: 100%;">
-                <h1>MediRepo AI <span style="font-size:0.9rem;font-weight:400;opacity:0.7">| Universal Bridge</span></h1>
-                <div id="config-threshold" class="badge-ready" aria-live="polite">Config: Syncing...</div>
+<body>
+    <div class="container">
+        <!-- Persistent Hero Section -->
+        <header class="hero-header fade-in">
+            <div class="shield-logo">
+                <i class="fa-solid fa-bridge-water"></i>
             </div>
-        </div>
-        <div id="auth-status">
-            <button id="logout-btn" class="hidden ghost-btn" aria-label="Sign Out">Sign Out</button>
-        </div>
-    </header>
+            <h1>MediRepo AI</h1>
+            <p>The Universal Medical Bridge</p>
+            <div class="mission-tagline">Translating medical intent into structured care.</div>
+        </header>
 
-    <main role="main" class="container">
-        <!-- New Intro Section (Seasoned UX) - Persistent -->
-        <section id="welcome-intro" class="hero-section fade-in">
-            <h1>Turn Messy Data into <span class="gradient-text">Verified Actions</span></h1>
-            <p id="welcome-message">The MediRepo "Universal Bridge" uses Gemini AI to instantly convert unstructured medical voice, text, and images into a secure, real-time clinical database.</p>
-        </section>
+        <!-- Dynamic Content Area -->
+        <main id="main-content" style="width: 100%;">
+            
+            <!-- 1. The 3-Column Action Grid -->
+            <section id="action-grid" class="action-grid hidden fade-in">
+                <div class="glass-card" id="start-repo-card">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <h3>Start Repository</h3>
+                    <p>Upload Rx, Notes, or Voice</p>
+                </div>
+                <div class="glass-card" id="search-inventory-card">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <h3>Search Inventory</h3>
+                    <p>Find Medications Instantly</p>
+                </div>
+                <div class="glass-card" id="export-data-card">
+                    <i class="fa-solid fa-file-export"></i>
+                    <h3>Export Data</h3>
+                    <p>Download CSV Report</p>
+                </div>
+            </section>
 
-        <!-- Secure Auth Module -->
-        <section id="auth-section" class="card glass-card fade-in">
-            <h2>Access Authorized Bridge</h2>
-            <div class="auth-box">
-                <div class="input-group">
-                    <input type="email" id="email-input" placeholder="Email Address" aria-label="Email" required>
-                </div>
-                <div class="input-group password-group">
-                    <input type="password" id="pass-input" placeholder="Password" aria-label="Password" required>
-                    <button type="button" id="toggle-password" class="eye-btn" aria-label="Toggle Password Visibility">
-                        <i class="fa-solid fa-eye" id="eye-icon"></i>
-                    </button>
-                </div>
-                <div class="auth-buttons">
-                    <button id="login-btn" class="primary-btn">Sign In</button>
-                    <button id="signup-btn" class="secondary-btn">New Account</button>
-                </div>
-                <div class="social-auth">
-                    <button id="google-login-btn" class="google-btn">
+            <!-- 2. Authentication Pillar -->
+            <section id="auth-section" class="fade-in">
+                <div class="auth-box glass-card">
+                    <button id="google-login-btn" class="pill-btn google-pill">
                         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="18">
                         Sign in with Google
                     </button>
-                    <button id="forgot-pass-btn" class="text-link">Forgot Password?</button>
-                </div>
-            </div>
-            <div id="auth-error" aria-live="assertive" class="error-toast hidden" role="alert"></div>
-        </section>
-
-        <!-- Main Dashboard -->
-        <section id="dashboard-section" class="hidden fade-in">
-            
-            <div id="notification-banner" class="hidden alert-glass" role="alert">
-                <i class="fa-solid fa-bell-concierge"></i>
-                <span id="notification-text"></span>
-            </div>
-
-            <!-- Shortcut Buttons -->
-            <div class="quick-links">
-                <button id="find-pharmacy-btn" class="link-btn">
-                    <i class="fa-solid fa-location-dot"></i> Near Me
-                </button>
-                <button id="calendar-reminder-btn" class="link-btn">
-                    <i class="fa-solid fa-clock"></i> Set Alert
-                </button>
-                <button id="download-csv-btn" class="link-btn success-link">
-                    <i class="fa-solid fa-file-csv"></i> Export Data
-                </button>
-            </div>
-
-            <!-- AI Entry -->
-            <div class="card glass-card entry-card">
-                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> AI Deep Bridge</h3>
-                <p class="muted">Paste a prescription, upload an invoice, or use voice.</p>
-                <div class="smart-input-box">
-                    <textarea id="smart-input" placeholder="E.g. '3 strips of Dolo 650, expires Dec 2028'"></textarea>
-                    <div class="input-controls">
-                        <button id="voice-btn" class="icon-btn" title="Voice"><i class="fa-solid fa-microphone"></i></button>
-                        <label for="image-upload" class="icon-btn" title="Upload"><i class="fa-solid fa-paperclip"></i></label>
-                        <input type="file" id="image-upload" accept="image/*" hidden>
-                        <button id="process-btn" class="primary-btn pulse">Build Intent</button>
+                    <button id="email-mode-btn" class="pill-btn email-pill">
+                        <i class="fa-solid fa-envelope"></i> Sign in with Email
+                    </button>
+                    
+                    <!-- Hidden Email Form -->
+                    <div id="email-form" class="hidden" style="margin-top:1rem;">
+                        <input type="email" id="email-input" class="input-field" placeholder="Email Address">
+                        <div style="position:relative;">
+                            <input type="password" id="pass-input" class="input-field" placeholder="Password">
+                            <button id="toggle-password" style="position:absolute; right:1rem; top:0.8rem; background:none; border:none; color:white; cursor:pointer;"><i class="fa-solid fa-eye" id="eye-icon"></i></button>
+                        </div>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button id="login-btn" class="pill-btn email-pill" style="padding:0.6rem;">Login</button>
+                            <button id="signup-btn" class="pill-btn email-pill" style="padding:0.6rem; background:rgba(255,255,255,0.05);">Sign Up</button>
+                        </div>
                     </div>
                 </div>
-                <div id="ai-processing-status" class="hidden loading-indicator">
-                    <div class="spinner"></div> Extracting structured JSON actions...
-                </div>
-            </div>
+                <div id="auth-error" class="hidden" style="color:#ef4444; margin-top:1rem; text-align:center; font-size:0.9rem;"></div>
+            </section>
 
-            <!-- Inventory -->
-            <div class="inventory-grid">
-                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2>Verified System Records</h2>
-                    <div class="search-box">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" id="inventory-search" placeholder="Search medicines..." aria-label="Search medical records">
+            <!-- 3. Quick Upload Drop-zone (The AI Brain) -->
+            <section id="dashboard-section" class="hidden fade-in">
+                <div class="glass-card quick-upload">
+                    <h3 style="margin-bottom:1rem; opacity:0.8;">Quick Upload</h3>
+                    <p style="font-size:0.9rem; margin-bottom:1.5rem; opacity:0.7;">Drop your prescription or voice note here:</p>
+                    <div class="upload-zone" id="drop-zone">
+                        <div class="upload-icons">
+                            <i class="fa-solid fa-file-medical"></i>
+                            <i class="fa-solid fa-microphone"></i>
+                            <i class="fa-solid fa-circle-arrow-down"></i>
+                        </div>
+                        <p>Drag & Drop Files</p>
+                        <input type="file" id="image-upload" hidden accept="image/*">
+                        <textarea id="smart-input" class="input-field" style="max-width:400px; height:60px; margin-top:1rem;" placeholder="Or type your intent here..."></textarea>
                     </div>
+                    <div id="ai-processing-status" class="hidden" style="margin-top:1rem; font-size:0.9rem;">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Gemini AI Extraction Active...
+                    </div>
+                    <button id="process-btn" class="pill-btn email-pill" style="margin-top:1.5rem; background:#22d3ee; color:#0e7490;">Process Intent</button>
                 </div>
-                <div id="medicine-grid" class="record-grid" role="list"></div>
-            </div>
+
+                <!-- Notification Banner (Matching Reference) -->
+                <div id="notification-banner" class="hidden glass-card" style="margin-top:1.5rem; border-color:#f59e0b; padding:1rem; font-size:0.9rem; color:#fef3c7;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> <span id="notification-text"></span>
+                </div>
+
+                <!-- Hidden Search Box (Triggered by Search Card) -->
+                <div id="search-box-container" class="hidden card glass-card" style="margin-top:1.5rem; padding:1.5rem;">
+                   <input type="text" id="inventory-search" class="input-field" placeholder="Search medications in the Bridge repository...">
+                </div>
+
+                <!-- Inventory Grid -->
+                <div id="inventory-view" class="record-grid" style="width:100%; margin-top:2.5rem; display:grid; grid-template-columns: 1fr; gap:1rem;"></div>
+            </section>
+        </main>
+
+        <!-- 4. Stats Bar -->
+        <section class="stats-bar fade-in">
+            <div class="stat-badge">Extraction Success: 98%</div>
+            <div class="stat-badge">Active Users: 120</div>
+            <div id="config-threshold" class="stat-badge">Inventory Synced</div>
         </section>
-    </main>
+
+        <footer>
+            MediRepo AI is a data structuring tool, not a substitute for medical advice.
+            <br><button id="logout-btn" class="hidden" style="background:none; border:none; color:white; text-decoration:underline; cursor:pointer; margin-top:1rem;">Sign Out</button>
+        </footer>
+    </div>
 
     <script type="module" src="app.js"></script>
 </body>

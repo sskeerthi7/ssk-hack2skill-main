@@ -1,215 +1,217 @@
 /* 
-  MediRepo Premium Design System 
-  Glassmorphism v4.2 (Search & Bug Fixes)
+  MediRepo Visual Masterpiece v5.0 (Final)
+  Theme: Professional Clinical Glass
 */
 
 :root {
-    --primary: #4f46e5;
-    --primary-light: #818cf8;
-    --secondary: #ec4899;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --glass: rgba(255, 255, 255, 0.75);
-    --glass-border: rgba(255, 255, 255, 0.4);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-    --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    --text-main: #1e293b;
-    --text-muted: #64748b;
+    --primary: #ffffff;
+    --accent: #22d3ee;
+    --bg-top: #0e7490;
+    --bg-bottom: #15803d;
+    --glass-bg: rgba(255, 255, 255, 0.15);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    --text-pure: #ffffff;
+    --text-faded: rgba(255, 255, 255, 0.85);
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     font-family: 'Outfit', sans-serif;
-    color: var(--text-main);
-    background: var(--bg-gradient);
+    color: var(--text-pure);
+    background: linear-gradient(180deg, var(--bg-top) 0%, #115e59 40%, var(--bg-bottom) 100%);
+    background-attachment: fixed;
     min-height: 100vh;
-    padding-bottom: 2rem;
-}
-
-/* Header */
-header {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--glass-border);
-    padding: 1rem 10%;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
-    position: sticky; top: 0;
-    z-index: 1000;
+    overflow-x: hidden;
 }
 
-.logo { display: flex; align-items: center; gap: 0.75rem; color: var(--primary); }
-.logo h1 { font-size: 1.4rem; font-weight: 700; height: 100%; display: flex; align-items: center; }
-
-.badge-ready {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success);
-    padding: 0.25rem 0.75rem;
-    border-radius: 99px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border: 1px solid rgba(16, 185, 129, 0.2);
+/* Ambient Medical Decor (DNA / Plus icons) */
+body::before {
+    content: '\2b'; /* Plus sign */
+    position: fixed; top: 10%; right: 15%;
+    font-size: 15rem; color: rgba(255, 255, 255, 0.03);
+    font-weight: 700; z-index: -1;
 }
 
-/* Hero Section */
-.hero-section {
+body::after {
+    content: '';
+    position: fixed; top: 50%; left: 10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.1) 0%, transparent 70%);
+    z-index: -1;
+}
+
+.container {
+    width: 100%;
+    max-width: 900px;
+    padding: 3rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+/* 1. Header & Shield Logo */
+.hero-header {
     text-align: center;
-    padding: 2.5rem 1rem;
-    max-width: 800px;
-    margin: 0 auto;
+    margin-bottom: 1rem;
 }
 
-.hero-section h1 {
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin-bottom: 0.75rem;
+.shield-logo {
+    width: 100px; height: 110px;
+    background: linear-gradient(135deg, #22d3ee, #0891b2);
+    margin: 0 auto 1.5rem;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    position: relative;
 }
 
-.gradient-text {
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.shield-logo i { font-size: 3rem; color: white; }
+
+.hero-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
 }
 
-.hero-section p {
+.hero-header p {
+    font-size: 1.25rem;
+    color: var(--text-faded);
+    margin-bottom: 0.5rem;
+}
+
+.mission-tagline {
     font-size: 1rem;
-    color: var(--text-muted);
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.5;
+    color: var(--text-faded);
+    opacity: 0.8;
 }
 
-/* Cards */
+/* 2. Action Card Grid */
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    width: 100%;
+}
+
 .glass-card {
-    background: var(--glass);
-    backdrop-filter: blur(10px);
+    background: var(--glass-bg);
+    backdrop-filter: blur(15px);
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
-    border-radius: 20px;
-}
-
-.container { max-width: 800px; margin: 0 auto; padding: 0 1rem; }
-.card { padding: 1.5rem; margin-bottom: 1.5rem; }
-
-/* Form Elements */
-.input-group { position: relative; margin-bottom: 1rem; }
-
-input, textarea {
-    width: 100%;
-    padding: 0.85rem 1rem;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 12px;
-    font-size: 0.95rem;
-    font-family: inherit;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
     transition: all 0.3s;
-}
-
-input:focus, textarea:focus {
-    background: white;
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-    outline: none;
-    border-color: var(--primary-light);
-}
-
-.password-group input { padding-right: 3rem; }
-
-.eye-btn {
-    position: absolute;
-    right: 0.75rem; top: 0.85rem;
-    background: none; border: none;
-    color: var(--text-muted);
     cursor: pointer;
+    text-decoration: none; color: inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
 }
 
-/* Buttons */
-.auth-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
-
-.primary-btn {
-    background: var(--primary);
-    color: white; border: none; padding: 0.85rem; border-radius: 12px;
-    font-weight: 600; cursor: pointer; transition: all 0.3s;
+.glass-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
-.primary-btn:hover { background: var(--primary-light); transform: translateY(-1px); }
+.glass-card i { font-size: 2rem; margin-bottom: 0.5rem; }
+.glass-card h3 { font-size: 1.1rem; font-weight: 600; }
+.glass-card p { font-size: 0.8rem; color: var(--text-faded); }
 
-.google-btn {
-    width: 100%; padding: 0.85rem; border-radius: 12px; border: 1px solid var(--glass-border);
-    background: white; color: var(--text-main); font-weight: 500;
-    display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer;
+/* 3. Auth Pill Buttons */
+.auth-box {
+    width: 100%;
+    max-width: 450px;
+    display: flex; flex-direction: column; gap: 1rem;
+    padding: 2rem;
 }
 
-/* Shortcuts */
-.quick-links { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-.link-btn {
-    padding: 0.6rem 1rem; border-radius: 10px; font-weight: 500; font-size: 0.85rem;
-    border: 1px solid var(--glass-border); background: rgba(255, 255, 255, 0.5); cursor: pointer;
-    display: flex; align-items: center; gap: 0.4rem;
+.pill-btn {
+    width: 100%;
+    padding: 0.9rem;
+    border-radius: 99px;
+    border: 1px solid var(--glass-border);
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+    cursor: pointer; transition: all 0.3s;
+    font-family: inherit; font-size: 1rem;
 }
 
-/* Search Box (New) */
-.search-box {
-    position: relative;
-    width: 200px;
+.google-pill { background: white; color: #1f2937; }
+.google-pill:hover { background: #f9fafb; transform: scale(1.02); }
+
+.email-pill { background: var(--glass-bg); color: white; backdrop-filter: blur(10px); }
+.email-pill:hover { background: rgba(255, 255, 255, 0.25); transform: scale(1.02); }
+
+/* 4. Quick Upload Box */
+.quick-upload {
+    width: 100%;
+    padding: 2.5rem;
 }
 
-.search-box i {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    font-size: 0.8rem;
+.upload-zone {
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex; flex-direction: column; align-items: center; gap: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
 }
 
-.search-box input {
-    padding: 0.5rem 0.75rem 0.5rem 2rem;
-    font-size: 0.85rem;
-    border-radius: 10px;
+.upload-icons {
+    display: flex; align-items: center; gap: 1.5rem;
+    font-size: 2.5rem; opacity: 0.7;
 }
 
-/* AI Indicator */
-.loading-indicator {
-    background: rgba(79, 70, 229, 0.05);
-    border: 1px solid rgba(79, 70, 229, 0.1);
-    padding: 0.75rem; border-radius: 12px; margin-top: 1rem;
-    display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem;
+.upload-icons i:nth-child(2) { font-size: 3.5rem; opacity: 1; }
+
+.upload-zone p { font-size: 1rem; font-weight: 500; }
+
+/* 5. Stats Bar */
+.stats-bar {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
 }
 
-.spinner {
-    width: 18px; height: 18px;
-    border: 2px solid rgba(79, 70, 229, 0.1);
-    border-top-color: var(--primary);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+.stat-badge {
+    background: var(--glass-bg);
+    padding: 0.75rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Record Grid */
-.record-grid { display: grid; gap: 0.75rem; margin-top: 1rem; }
-
-.medicine-card {
-    background: white; padding: 1rem 1.25rem; border-radius: 16px;
-    display: flex; justify-content: space-between; align-items: center;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s;
+/* Footer Disclaimer */
+footer {
+    width: 100%;
+    padding: 2rem; text-align: center;
+    font-size: 0.85rem; color: var(--text-faded);
 }
 
-.medicine-card:hover { transform: scale(1.01); }
-
+/* Hidden elements */
 .hidden { display: none !important; }
 
+/* Responsive */
 @media (max-width: 600px) {
-    .container { padding: 0 0.75rem; }
-    .hero-section h1 { font-size: 1.6rem; }
-    .search-box { width: 100%; margin-top: 0.5rem; }
-    .section-header { flex-direction: column; align-items: flex-start !important; }
+    .action-grid, .stats-bar { grid-template-columns: 1fr; }
+    .hero-header h1 { font-size: 2rem; }
 }
+
+/* Form Styles */
+.input-field {
+    width: 100%; padding: 0.85rem 1.25rem; border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border);
+    color: white; margin-bottom: 0.75rem; font-family: inherit;
+}
+.input-field::placeholder { color: rgba(255, 255, 255, 0.5); }
+.input-field:focus { background: rgba(255, 255, 255, 0.2); outline: none; }
